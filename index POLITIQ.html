@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>POLITIQ 宮崎版 v2.1</title>
+<style>
+:root{--bg:#F5F3ED;--sur:#FFFFFF;--s2:#EDEAE0;--s3:#E3DFD1;--bd:#D2CDBE;--ink:#0F0D0A;--sub:#4A4740;--dim:#8A877C;--ac:#00A870;--acL:#E2F5ED;--acD:#007A52;--blue:#1A4FA0;--blueL:#ECF2FB;--red:#C01020;--redL:#FAF0F1;--amber:#B07020;--amberL:#FDF2E0;--purple:#6B3FA0;--purpleL:#F0EBF8;--teal:#007A8A;--tealL:#E0F4F6;--rose:#C0204A;--roseL:#FAF0F3;--green:#1A6A35;--greenL:#E6F5EC;--orange:#C05A10;--orangeL:#FDF0E5}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:var(--bg);color:var(--ink);overflow:hidden;display:flex;justify-content:center}
+#root{width:min(400px,100vw);height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative}
+#sb{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--ink);color:#fff;font-size:13px;font-weight:700;flex-shrink:0;z-index:10}
+#sb .logo{font-size:15px;letter-spacing:1.5px;cursor:pointer}
+#scr{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px}
+#nav{height:56px;display:flex;align-items:center;justify-content:space-around;background:var(--sur);border-top:1px solid var(--bd);flex-shrink:0;z-index:10;padding-bottom:env(safe-area-inset-bottom)}
+.ntab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;color:var(--dim);cursor:pointer;padding:4px 8px}.ntab.act{color:var(--ac)}.ntab svg{width:22px;height:22px}
+.card{background:var(--sur);border-radius:14px;padding:16px;border:1px solid var(--bd);box-shadow:0 1px 5px rgba(0,0,0,.08);margin:8px 16px}
+.btn{display:block;width:100%;padding:13px;border-radius:12px;font-size:14px;font-weight:700;text-align:center;cursor:pointer;border:none;transition:all .2s}
+.btn-ac{background:var(--ac);color:#fff}.btn-ac:active{background:var(--acD)}
+.btn-out{background:transparent;border:1.5px solid var(--bd);color:var(--sub)}.btn-out:active{background:var(--s2)}
+.inp{width:100%;padding:11px 14px;border-radius:11px;border:1.5px solid var(--bd);font-size:14px;background:var(--sur);color:var(--ink);outline:none}.inp:focus{border-color:var(--ac)}
+.tag{display:inline-block;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--ac);border-top-color:transparent;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.numline{position:relative;height:4px;background:var(--s3);border-radius:2px;margin:12px 0}
+.ndot{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2);z-index:2}
+.nlbl{position:absolute;top:-28px;transform:translateX(-50%);background:#fff;padding:2px 6px;border-radius:5px;font-size:9px;font-weight:700;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.prog{height:3px;background:var(--s3);border-radius:2px;overflow:hidden}.prog-bar{height:100%;background:var(--ac);transition:width .3s;border-radius:2px}
+.qopt{padding:14px 16px;border:1.5px solid var(--bd);border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;margin-bottom:8px}
+.qopt .qk{width:28px;height:28px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--sub);flex-shrink:0}
+.qopt.correct{border-color:var(--ac);background:var(--acL)}.qopt.correct .qk{background:var(--ac);color:#fff}
+.qopt.wrong{border-color:var(--red);background:var(--redL)}.qopt.wrong .qk{background:var(--red);color:#fff}
+.qopt.dimmed{opacity:.5}
+.streak-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#FF6B35,#FF3D00);color:#fff;font-size:12px;font-weight:800;padding:4px 10px;border-radius:20px}
+.score-bump{display:inline-flex;align-items:center;gap:4px;background:var(--acL);color:var(--acD);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:8px}
+.radar-bar{height:8px;border-radius:4px;background:var(--s3);overflow:hidden;margin:4px 0 8px}.radar-fill{height:100%;border-radius:4px;transition:width .5s}
+.hero-quiz{background:linear-gradient(135deg,var(--ink) 0%,#1a2a1a 100%);color:#fff;padding:24px 16px}
+.news-feat{position:relative;border-radius:14px;overflow:hidden;margin:8px 16px;height:180px;cursor:pointer}
+.news-feat img{width:100%;height:100%;object-fit:cover}.news-feat .overlay{position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(transparent,rgba(0,0,0,.8));color:#fff}
+.news-card{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--s2);cursor:pointer}
+.news-card img{width:80px;height:60px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.brief-scroll{display:flex;gap:10px;overflow-x:auto;padding:0 16px 8px;-webkit-overflow-scrolling:touch}.brief-scroll::-webkit-scrollbar{display:none}
+.brief-card{min-width:140px;max-width:140px;background:var(--sur);border-radius:10px;overflow:hidden;border:1px solid var(--bd);cursor:pointer;flex-shrink:0}
+.brief-card img{width:100%;height:80px;object-fit:cover}.brief-card .bc-t{padding:8px;font-size:11px;font-weight:600;line-height:1.3}
+.dot-ind{display:flex;gap:6px;justify-content:center}.dot-ind span{width:8px;height:8px;border-radius:50%;background:var(--s3);transition:all .3s}.dot-ind span.act{background:var(--ac);width:20px;border-radius:4px}
+.fade-in{animation:fadeIn .3s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}.pop-in{animation:popIn .4s ease}
+.section-title{font-size:11px;font-weight:800;color:var(--dim);text-transform:uppercase;letter-spacing:1px;padding:16px 16px 8px}
+.back-btn{padding:12px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:600}
+.step-btn{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--bd);background:var(--sur);text-align:center;margin-bottom:6px;transition:all .15s}
+.step-btn:active,.step-btn.sel{background:var(--acL);border-color:var(--ac);color:var(--acD)}
+.ad-slot{background:var(--s2);border:1px dashed var(--bd);border-radius:10px;padding:20px;text-align:center;margin:8px 16px;color:var(--dim);font-size:11px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div id="root">
+<div id="sb"><span id="clock"></span><span class="logo" onclick="goHome()">POLITIQ</span><div style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.15);cursor:pointer;font-size:22px" onclick="goSettings()">⚙</div></div>
+<div id="scr"></div>
+<div id="nav"></div>
+<div id="ov" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:var(--bg);overflow-y:auto"></div>
+</div>
+<script>
+// ===== SUPABASE =====
+var SUPA_URL='https://bwfcwvuteitovapkgruz.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3ZmN3dnV0ZWl0b3ZhcGtncnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzc3MTcsImV4cCI6MjA5MzgxMzcxN30.fYwBToo70_Usbi318QSzgF1hnLPsQm-I-_WMQMZIJVA';
+var _sb=null;
+function getDB(){if(!_sb&&window.supabase){_sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);}return _sb;}
+function getUID(){var uid=null;try{uid=localStorage.getItem('pq_uid');}catch(e){}if(!uid){uid='u_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);try{localStorage.setItem('pq_uid',uid);}catch(e){}}return uid;}
+function saveToSupabase(q,ai){var db=getDB();if(!db)return;var row={user_id:getUID(),answered_at:new Date().toISOString(),question_id:String(q.id),is_correct:(ai===q.correct),selected:String(q.options[ai]||'')};db.from('quiz_answers').insert(row).then(function(res){if(res.error)console.warn('Supabase:',res.error.message);});}
+
+var PA=[{key:'tax',name:'消費税・減税',L:'維持',R:'廃止'},{key:'defense',name:'防衛費',L:'反対',R:'増額'},{key:'agri',name:'農業・食料',L:'市場開放',R:'国産保護'},{key:'energy',name:'脱炭素・再エネ',L:'経済優先',R:'急速転換'},{key:'gender',name:'ジェンダー',L:'現状維持',R:'積極推進'},{key:'reform',name:'行政改革',L:'現状維持',R:'抜本改革'}];
+var CANDS=[
+{name:'渡辺 創',party:'中道改革連合',short:'中道',color:'#1A50A0',tax:1,defense:1,agri:4,energy:5,gender:5,reform:4},
+{name:'武井 俊輔',party:'自由民主党',short:'自民',color:'#C8102E',tax:3,defense:5,agri:5,energy:2,gender:2,reform:2},
+{name:'滋井 邦晃',party:'参政党',short:'参政',color:'#4A3AAA',tax:5,defense:2,agri:5,energy:1,gender:1,reform:2},
+{name:'横田 朋大',party:'日本維新の会',short:'維新',color:'#007A35',tax:3,defense:3,agri:2,energy:4,gender:4,reform:5}];
+var PARTIES=[
+{name:'自由民主党',short:'自民',color:'#C8102E',tax:3,defense:5,agri:5,energy:2,gender:2,reform:2},
+{name:'中道改革連合',short:'中道',color:'#1A50A0',tax:2,defense:1,agri:3,energy:5,gender:5,reform:4},
+{name:'日本維新の会',short:'維新',color:'#007A35',tax:3,defense:3,agri:2,energy:4,gender:4,reform:5},
+{name:'参政党',short:'参政',color:'#4A3AAA',tax:5,defense:2,agri:5,energy:1,gender:1,reform:2},
+{name:'立憲民主党',short:'立民',color:'#1060C0',tax:2,defense:1,agri:4,energy:5,gender:5,reform:4},
+{name:'国民民主党',short:'国民',color:'#C06010',tax:4,defense:3,agri:3,energy:3,gender:4,reform:4},
+{name:'日本共産党',short:'共産',color:'#A01010',tax:1,defense:1,agri:4,energy:5,gender:5,reform:3},
+{name:'チームみらい',short:'みらい',color:'#007A8A',tax:3,defense:2,agri:3,energy:4,gender:4,reform:5},
+{name:'社会民主党',short:'社民',color:'#C0204A',tax:1,defense:1,agri:4,energy:5,gender:5,reform:3}];
+var EC=[
+{id:'e2026s',name:'2026 衆院選',date:20260208,type:'s',dists:['宮崎1区','宮崎2区','宮崎3区'],cs:{'宮崎1区':['渡辺 創','武井 俊輔','滋井 邦晃','横田 朋大'],'宮崎2区':['江藤 拓','長友 慎治'],'宮崎3区':['古川 禎久','柏原 よしあき']}},
+{id:'e2025p',name:'2025 参院選',date:20250700,type:'p',dists:['宮崎県選挙区','比例代表'],cs:{'宮崎県選挙区':['松下 新平','渡辺 喜美']}},
+{id:'e2024s',name:'2024 衆院選',date:20241027,type:'s',dists:['宮崎1区','宮崎2区','宮崎3区'],cs:{'宮崎1区':['渡辺 創','武井 俊輔','外山 斎'],'宮崎2区':['江藤 拓','長友 慎治'],'宮崎3区':['古川 禎久','井福 美知子']}},
+{id:'e2022p',name:'2022 参院選',date:20220710,type:'p',dists:['宮崎県選挙区','比例代表'],cs:{'宮崎県選挙区':['松下 新平','寺原 哲也']}},
+{id:'e2021s',name:'2021 衆院選',date:20211031,type:'s',dists:['宮崎1区','宮崎2区','宮崎3区'],cs:{'宮崎1区':['武井 俊輔','渡辺 創','外山 斎'],'宮崎2区':['江藤 拓','長友 慎治'],'宮崎3区':['古川 禎久','柏原 よしあき']}},
+{id:'e2027g',name:'2027 宮崎県知事選(予定)',date:20270100,type:'g',dists:['宮崎県全域'],cs:{'宮崎県全域':['右松 (元県議)']},axes:'県政'},
+{id:'e2026m',name:'2026 宮崎市長選',date:20260125,type:'m',dists:['宮崎市全域'],cs:{'宮崎市全域':['清山 知憲','佐藤 健次郎']}}
+];
+var NEWS=[
+{id:1,cat:'政治',color:'var(--blue)',colorL:'var(--blueL)',hl:'高市首相、食料品消費税の段階的引き下げを表明 ── 2027年度に8%→5%、最終的にゼロ目標',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Kantei_Kanteichokushinku.jpg/640px-Kantei_Kanteichokushinku.jpg',date:'2026年4月14日',src:'NHK・時事通信',tags:['消費税','物価対策','食料品'],lead:'高市首相は14日の記者会見で、食料品にかかる消費税を2027年度から段階的に引き下げ、最終的にゼロを目指す方針を正式に表明した。与野党協議を経て今国会中の法改正を目指す。',summary:'物価高騰が長期化する中、家計への直接的な支援策として浮上したのが食料品消費税のゼロ化だ。現在の軽減税率8%をまず5%に引き下げ、2030年までにゼロにするロードマップが示された。財源には法人税の累進強化と金融所得課税の見直しが充てられる見通し。国民民主党や維新が賛成に回る一方、自民党内の財政規律派からは「社会保障財源が枯渇する」と強い反発が出ている。世論調査では賛成が67%に上り、政権の支持率を左右する大型政策になりそうだ。宮崎県では食費のエンゲル係数が全国平均を約3ポイント上回っており、この政策の恩恵が相対的に大きい地域とされる。',pro:'食料品は全国民が毎日購入するため、減税効果が即座に実感できる。特に収入に対する食費割合が高い低所得世帯・年金生活者・子育て世帯への恩恵が大きい。消費マインドの改善による経済の好循環も期待されている。イギリスやカナダなど食料品非課税の先進国も多く、国際的にも合理的な政策。',con:'年間約4〜6兆円の税収減が見込まれ、社会保障費の安定財源が失われるリスクがある。また高所得者ほど食費の絶対額が大きいため、金額ベースでは逆進性が解消しないとの指摘も。外食との線引きが複雑化し、事業者の事務負担増大も課題。',miy:'宮崎県は全国でもエンゲル係数が高い地域。県内のスーパーや直売所を利用する高齢者世帯にとっては月あたり数千円の負担軽減になる計算。一方で地元の食品加工業者からは「税率変更のシステム対応コストが痛い」との声も上がっている。'},
+{id:2,cat:'政治',color:'var(--red)',colorL:'var(--redL)',hl:'防衛費GDP比2.5%へ ── 新田原基地にF-35B配備決定、宮崎で賛否',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Japan_Ground_Self-Defense_Force_Type_10_tanks_20120310.jpg/640px-Japan_Ground_Self-Defense_Force_Type_10_tanks_20120310.jpg',date:'2026年4月12日',src:'読売新聞・防衛省',tags:['防衛費','新田原基地','F-35B'],lead:'政府は2027年度予算で防衛費をGDP比2.5%とする方針を固めた。宮崎県新富町の新田原基地にはF-35Bステルス戦闘機の配備が正式決定し、地元では経済効果への期待と騒音問題への懸念が交錯している。',summary:'台湾海峡の緊張や北朝鮮の相次ぐミサイル発射を受け、岸田政権時代に決まったGDP比2%目標がさらに引き上げられた。2027年度は約15兆円規模となり、世界第3位の防衛予算に。新田原基地へのF-35B配備は南西防衛の要として位置づけられ、隊員約500名の増員と関連施設の建設が始まる。新富町は人口約1.6万人の小さな町で、基地関連の経済効果は年間数十億円と試算される一方、離着陸訓練による騒音は既存のF-15より大幅に増加する見込み。地元の商工会は歓迎ムードだが、農業従事者や子育て世帯からは不安の声が上がり、町議会でも議論が続いている。',pro:'東アジアの軍事バランスが急速に変化する中、抑止力の強化は不可欠。特に南西諸島防衛において新田原基地の戦略的重要性は高く、F-35Bの配備は日米同盟の信頼性向上にもつながる。地元経済への波及効果も大きい。',con:'防衛費増額は社会保障や教育予算の圧迫につながる。また基地強化は周辺国との緊張を高めるリスクもある。外交による信頼醸成を優先すべきとの意見も根強い。騒音や事故リスクなど基地周辺住民の生活環境悪化も深刻な問題。',miy:'新田原基地は宮崎県の主要な雇用拠点でもあり、F-35B配備による隊員増は地域経済にプラス。しかし基地周辺の農地では騒音による畜産への影響（乳量低下・ストレス）が懸念されている。新富町は防音工事への補助金拡充を国に要請中。'},
+{id:3,cat:'政治',color:'var(--purple)',colorL:'var(--purpleL)',hl:'渡辺創氏、中道改革連合の代表に就任 ── 「地方から国を変える」宮崎モデルを全国に',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Diet_of_Japan_Kokkai.jpg/640px-Diet_of_Japan_Kokkai.jpg',date:'2026年4月10日',src:'朝日新聞・毎日新聞',tags:['渡辺創','中道改革連合','地域主権'],lead:'2026年衆院選で宮崎1区から当選した渡辺創氏が中道改革連合の新代表に選出された。「永田町の論理ではなく、地方の現場から政策をつくる」と所信表明し、宮崎県を地域主権のモデルケースに据える構想を発表した。',summary:'渡辺氏は元宮崎県議で、2026年2月の衆院選で自民・武井俊輔氏を破り初当選。わずか2ヶ月で党代表に就任する異例のスピード出世となった。掲げる政策の柱は(1)農業の6次産業化と有機農業推進(2)再生可能エネルギー特区の創設(3)地方への権限・財源移譲の3点。「宮崎で成功したモデルを全国に広げる」と述べ、2027年参院選に向けた党勢拡大を宣言した。党内では若手議員から支持を集める一方、ベテラン議員からは「地方の成功体験が全国に通用するのか」との慎重論も出ている。',pro:'地方出身の若いリーダーが国政の中心に立つことで、東京一極集中の是正に向けた議論が加速する。農業や再エネなど地方の強みを活かした成長戦略は説得力がある。',con:'国政経験が浅く、外交・安全保障・マクロ経済政策での手腕は未知数。地方モデルの全国展開には制度的なハードルも多い。',miy:'渡辺氏の代表就任は宮崎県にとって明治以来の「地元出身の党代表」。県内では期待が高まる一方、「宮崎の問題を本当に国政で解決できるのか」と冷静に見る有権者も。有機農業特区構想は綾町や都城市の農家から具体的な要望が出始めている。'},
+{id:4,cat:'宮崎',color:'var(--green)',colorL:'var(--greenL)',hl:'宮崎ガソリン180円突破 ── 農家の燃料費が前年比30%増、JAが緊急支援策',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Miyazaki_beef_02.jpg/640px-Miyazaki_beef_02.jpg',date:'2026年4月13日',src:'宮崎日日新聞・西日本新聞',tags:['ガソリン','農業','畜産','物価'],lead:'宮崎県内のレギュラーガソリン平均価格が180円を突破した。公共交通が限られ自家用車依存度が全国トップクラスの宮崎では、通勤・通学から農業まであらゆる場面で家計を直撃。JA宮崎中央会は燃料費の緊急補助を決定した。',summary:'原油価格の高止まりに加え、円安の進行（1ドル=158円台）がガソリン価格を押し上げている。宮崎県は鉄道やバスの路線が少なく、県民の約8割が日常的に自動車を利用する「車社会」。通勤1日あたりの走行距離は全国平均の1.5倍に達し、月のガソリン代が2万円を超える世帯も珍しくない。農業では、ビニールハウスの暖房に使う重油、飼料の輸送に使うトラックの軽油など、燃料費が経営コストの大きな割合を占める。宮崎牛の生産者からは「子牛1頭あたりの飼育コストが10万円以上増えた」との声も。JA宮崎中央会は1農家あたり最大20万円の燃料費補助を決めたが、根本的な解決には政府のトリガー条項発動が必要との声が強い。',pro:'トリガー条項を発動しガソリン税（揮発油税25.1円/L）を一時停止すべき。地方の生活インフラとしてのガソリンは食料品と同様に軽減措置が必要。農業の競争力維持のためにも燃料費支援は急務。',con:'化石燃料への補助金は脱炭素の流れに逆行する。EV普及や再エネ導入への投資に振り向けるべき。トリガー条項発動は年間1.5兆円の税収減となり財政を圧迫する。',miy:'宮崎県の1世帯あたり自動車保有台数は全国5位。特に県南部の日南市・串間市では公共交通の選択肢がほぼなく、車がなければ病院にも行けない状況。高齢ドライバーの免許返納が進まない一因にもなっている。'},
+{id:5,cat:'宮崎',color:'var(--green)',colorL:'var(--greenL)',hl:'宮崎県知事選2027、複数候補が浮上 ── 河野前知事の後継争い本格化',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Miyazaki_Prefectural_Government_Office.jpg/640px-Miyazaki_Prefectural_Government_Office.jpg',date:'2026年4月9日',src:'宮崎日日新聞',tags:['知事選','県政','人口減少'],lead:'2027年1月の宮崎県知事選に向けて、元県議の右松健太氏が正式に出馬表明。他にも現職副知事や経済界からの擁立論があり、選挙戦の構図が固まりつつある。',summary:'現職の河野俊嗣知事は4期目を全うして退任する方針を示しており、16年ぶりの新人知事が誕生する見通し。右松氏は「人口減少を止める」を最大の公約に掲げ、(1)県内IT企業への税制優遇(2)子育て支援の大幅拡充(3)宮崎空港の国際線復活を打ち出した。一方、現職副知事の擁立を推す自民県連は「県政の安定的な継続」を重視。経済界からは宮崎銀行出身の実業家の名前も取り沙汰されている。宮崎県の人口は108万人を割り込み、2040年には90万人を下回る推計も。知事選の争点は人口減少対策と産業振興に絞られそうだ。',pro:'新しいリーダーシップで県政を刷新し、若者の県外流出を食い止める具体策が必要。IT企業誘致や国際線復活は宮崎の可能性を広げる。',con:'知事一人の力で人口減少は止められない。国の政策や経済構造の問題であり、地方自治体にできることには限界がある。実現可能性の低い公約で県民の期待を煽るべきではない。',miy:'宮崎県の転出超過は年間約3,000人。特に18〜24歳の若者が福岡・東京へ流出している。知事選は「宮崎に残る理由をつくれるか」が問われる選挙になる。'},
+{id:6,cat:'宮崎',color:'var(--teal)',colorL:'var(--tealL)',hl:'JR日南線、南郷〜志布志間の廃止が事実上決定 ── BRT転換へ地元協議開始',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/JR_Kyushu_kiha47_at_Nichinan_Station.jpg/640px-JR_Kyushu_kiha47_at_Nichinan_Station.jpg',date:'2026年4月7日',src:'日本経済新聞・NHK宮崎',tags:['JR日南線','廃線','BRT','交通'],lead:'JR九州は日南線の南郷〜志布志間（約30km）について鉄道での維持を断念し、BRT（バス高速輸送システム）への転換を沿線自治体に正式提案した。1日の利用者が100人を下回る区間もあり、年間赤字は約8億円に達していた。',summary:'JR日南線は宮崎駅から鹿児島県の志布志駅を結ぶ全長88.9kmのローカル線。沿線には青島、鵜戸神宮、飫肥城下町など宮崎を代表する観光地が点在するが、利用者数はピーク時の1/5以下に落ち込んでいた。JR九州は宮崎〜南郷間は当面維持する方針だが、南郷〜志布志間はBRT転換を提案。BRTは専用道路を走るバスで、鉄道より運行コストが低く、ダイヤの柔軟性も高い。しかし沿線の串間市や志布志市の住民からは「鉄道がなくなれば地域が死ぬ」との反発が強く、高校生の通学手段としても重要。国土交通省の新制度「再構築協議会」のもとで、今後2年間かけて最終的な結論を出す。',pro:'BRT転換により運行コストを大幅に削減しつつ、路線自体は維持できる。停留所を増やすことで利便性が向上する可能性も。全国で成功例（気仙沼線BRTなど）もある。鉄道にこだわることが必ずしも住民の利益にはならない。',con:'鉄道は地域のアイデンティティであり観光資源でもある。一度廃止すれば復活はほぼ不可能。BRTでは観光客の誘客力が大幅に低下する。過疎化をさらに加速させ、沿線の不動産価値も下落する。',miy:'日南線沿線には県立高校が3校あり、約200名の高校生が通学に利用。BRT転換後も通学の足は確保される見通しだが、冬季の遅延や災害時の運休リスクは鉄道より高い。青島〜日南間の観光列車「海幸山幸」の存続も焦点に。'},
+{id:7,cat:'経済',color:'var(--amber)',colorL:'var(--amberL)',hl:'2026年度農業予算2.3兆円 ── 宮崎牛の輸出支援に120億円、有機農業にも重点配分',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Miyazaki_cattle_Mochikou.jpg/640px-Miyazaki_cattle_Mochikou.jpg',date:'2026年4月5日',src:'農林水産省・日本農業新聞',tags:['農業予算','宮崎牛','有機農業','輸出'],lead:'農林水産省は2026年度の農業関連予算が過去最大の2兆3,000億円になったと発表。このうち和牛を含む畜産物の輸出促進に120億円、有機農業の面積拡大に80億円が計上された。宮崎県は両分野で全国トップクラスの実績があり、重点支援地域に選定されている。',summary:'食料安全保障の強化が国策として位置づけられる中、農業予算は3年連続で過去最大を更新した。特に注目されるのが輸出支援と有機農業の2本柱。宮崎牛は2025年に年間輸出額100億円を突破し、和牛ブランドの先頭を走る存在。今回の予算ではEU・中東向けの認証取得支援、コールドチェーン（低温流通網）整備、海外での宮崎牛プロモーションに資金が投じられる。有機農業については、政府が2050年までに農地の25%を有機化する「みどりの食料システム戦略」を掲げており、宮崎県は綾町を中心に有機農業の先進地として全国のモデルに。都城市では畜産と有機農業を組み合わせた循環型農業の実証プロジェクトも始まっている。',pro:'農業を「補助金で守る産業」から「稼げる成長産業」に転換する好機。宮崎牛の世界的なブランド力は日本の大きな強み。有機農業は環境負荷軽減と高付加価値化の両立が可能。',con:'大規模農家への補助金偏重で、小規模家族経営が切り捨てられるリスク。輸出偏重は国内の食料供給を不安定にしかねない。有機農業の生産性は慣行農業の6〜7割にとどまり、移行期の農家負担も大きい。',miy:'宮崎県の農業産出額は全国5位。宮崎牛、マンゴー、きゅうり、ピーマンなどブランド農産物が多い。今回の予算は宮崎の農業にとって追い風だが、高齢化する農家の後継者不足という根本課題は予算だけでは解決しない。'},
+{id:8,cat:'経済',color:'var(--orange)',colorL:'var(--orangeL)',hl:'4月の実質賃金、前年比+0.3%でプラス転換 ── ただし地方は恩恵薄く宮崎は-0.5%',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Aoshima_Island_Miyazaki.jpg/640px-Aoshima_Island_Miyazaki.jpg',date:'2026年4月11日',src:'厚生労働省・総務省',tags:['実質賃金','物価','地方経済','格差'],lead:'厚生労働省が発表した毎月勤労統計調査で、実質賃金が前年同月比+0.3%と4ヶ月ぶりにプラスに転じた。しかし大企業中心の賃上げであり、地方の中小企業や非正規労働者への波及は限定的。宮崎県では依然マイナス圏にとどまっている。',summary:'2026年春闘では大企業の賃上げ率が平均5.2%と33年ぶりの高水準を記録した。これを受けて全国の実質賃金はようやくプラスに転じたが、地域間格差は拡大している。宮崎県の最低賃金は全国最低水準の953円（2025年10月改定）で、平均月収は全国平均を約5万円下回る。観光業ではインバウンド需要の回復で売上は増加しているが、人手不足が深刻化し、外国人技能実習生に依存する構造が固定化しつつある。農業分野では飼料・燃料価格の高騰で実質的な手取りが減少しており、「名目賃金が上がっても物価がそれ以上に上がる」状況が続いている。',pro:'賃上げの流れが全国に波及すれば、消費回復と好循環が生まれる。最低賃金の引き上げを加速し、地方にも恩恵を届けるべき。政府のリスキリング支援で労働生産性を高めることも重要。',con:'中小企業の賃上げ余力は限られている。無理な賃上げは倒産や廃業を招く。地方経済の構造的な問題（生産性の低さ、人口減少）は賃上げだけでは解決しない。',miy:'宮崎県の有効求人倍率は1.2倍と人手不足が顕著だが、賃金水準が低いため県外に人材が流出する悪循環。特に介護・農業・観光の3分野で深刻。宮崎大学の卒業生の約6割が県外に就職している。'},
+{id:9,cat:'経済',color:'var(--amber)',colorL:'var(--amberL)',hl:'宮崎牛、EU輸出が本格始動 ── パリの三ツ星レストランが採用、年間200億円市場へ',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Miyazaki_beef_02.jpg/640px-Miyazaki_beef_02.jpg',date:'2026年4月3日',src:'農林水産省・宮崎県庁',tags:['宮崎牛','EU輸出','ブランド','農業'],lead:'宮崎牛のEU向け輸出が本格的に始動した。EUの厳格な衛生基準をクリアした県内の食肉処理施設から初出荷が行われ、パリの三ツ星レストラン3店舗での採用が決定。県は2030年までに年間輸出額200億円を目指す。',summary:'日本産和牛のEU輸出は2023年に解禁されたが、HACCPやトレーサビリティの基準が厳しく、対応できる施設は全国でもわずか。宮崎県はいち早く都城市の食肉処理施設をEU認定に対応させ、先行者利益を確保した。パリ、ロンドン、ミラノの高級レストランでの評価は極めて高く、「KOBEに匹敵するかそれ以上」との声も。現在の輸出先は米国・香港・シンガポールが中心で年間約110億円だが、EU・中東という新市場が加わることで2030年200億円は現実的な目標とされる。一方で、輸出量の増加に伴い国内市場への供給が減り、国内価格の上昇を懸念する声もある。県内の生産者からは「輸出でブランド価値が上がれば国内価格も適正化される」という前向きな意見と、「結局大手が儲かるだけで小規模農家には恩恵がない」という批判の両方が聞こえる。',pro:'世界市場での宮崎牛のブランド確立は、日本の農業輸出の象徴的成功例になりうる。高付加価値の輸出は農家の所得向上と地域経済の活性化に直結する。',con:'輸出偏重は国内消費者の負担増につながる。和牛の生産には大量の飼料と水が必要で、環境負荷の観点から無制限の増産には限界がある。小規模農家が輸出の恩恵を受けるための仕組みづくりが不足している。',miy:'宮崎県は和牛の生産額で全国2位。都城市は市町村別で全国1位の畜産都市。EU輸出により都城市だけで年間50億円の経済効果が見込まれている。県は「フードバレー宮崎」構想を掲げ、食の一大産地としての地位確立を目指す。'},
+{id:10,cat:'社会',color:'var(--rose)',colorL:'var(--roseL)',hl:'宮崎県議会の女性議員が過去最多の7名に ── それでも全国38位、構造的課題は根深い',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Miyazaki_City_Hall.jpg/640px-Miyazaki_City_Hall.jpg',date:'2026年4月1日',src:'宮崎日日新聞・西日本新聞',tags:['ジェンダー','女性議員','地方議会','政治参画'],lead:'2025年の統一地方選を経て、宮崎県議会の女性議員が過去最多の7名（全39議席中、17.9%）になった。しかし全国ランキングでは依然38位にとどまり、「政治は男性がするもの」という固定観念が根強い地方の課題が浮き彫りに。',summary:'内閣府の調査によれば、地方議会の女性比率が低い要因として「家庭との両立が困難」「選挙活動にかかるコストと時間」「ハラスメント」が上位に挙がる。宮崎県では特に農村部で「女性は家を守るべき」という価値観が残り、立候補自体のハードルが高い。一方で都市部の宮崎市や都城市では30〜40代の女性候補が善戦する傾向があり、世代間の意識差が鮮明になっている。県は女性の政治参画を促す「ウィメンズ政治スクール」を2025年に開講し、延べ80名が参加。受講者の中から次期市町村議選への立候補を検討する女性も出始めている。全国的にはクオータ制（候補者の一定割合を女性にする制度）の導入議論も進むが、宮崎県議会では「能力で選ぶべき」との反対論が多数を占めている。',pro:'多様な視点が政策に反映されることで、子育て・介護・DV対策など生活に密着した課題への対応が改善する。女性議員の増加は民主主義の質を高める。候補者均等法の実効性を強化し、政党に女性候補の擁立を義務づけるべき。',con:'クオータ制は逆差別であり、性別ではなく能力で選ばれるべき。形式的な数合わせは議会の質を下げかねない。女性自身が政治に関心を持つことが先であり、制度で強制すべきではない。',miy:'宮崎県の市町村議会では女性ゼロの自治体がまだ5つある。議員報酬が月15万円以下の町村では「仕事を辞めてまで立候補できない」のが現実。オンライン議会や育児中の議場入りなど、制度面の改革も求められている。'}
+];
+var _nc=['全て','政治','宮崎','経済','社会'];
+
+// Quiz DB - 5 days x 10 = 50 questions (showing structure for 2 days, repeated pattern)
+var QDB=[];
+(function(){
+// 基本問題(無料): ニュース知識 + 実生活関連
+var pool=[
+// ==== ニュース時事(数字より内容重視) ====
+{ax:'tax',q:'2026年度本予算の成立で最も恩恵を受けるのは？',o:['大企業','住民税非課税世帯','上場企業役員','公務員'],c:1,ex:'物価高対策3.2兆円の中心は住民税非課税世帯への1人4万円給付。低所得層への支援が柱。',nid:2},
+{ax:'defense',q:'ホルムズ海峡の通航停止が日本の暮らしに与える最大の影響は？',o:['観光業の縮小','ガソリン・電気代の上昇','食料品の不足','通信障害'],c:1,ex:'日本の原油輸入の約8割がホルムズ海峡経由。通航停止はエネルギー価格に直結し、ガソリンや電気代が上昇する。'},
+{ax:'tax',q:'食料品消費税ゼロ化で「逆進性」が問題となる理由は？',o:['高所得層ほど食費が高いから','低所得層ほど食費の割合が高いから','食費は変動が激しいから','税率が地域で異なるから'],c:1,ex:'低所得世帯は収入に占める食費の割合が高いため、食料品消費税は相対的に重い負担になる。これを緩和するのが逆進性対策。',nid:2},
+{ax:'reform',q:'排出量取引制度が私たちの生活に与える影響として正しいのは？',o:['ガソリン価格が安くなる','電気料金に影響が出る可能性','住宅ローン金利が下がる','食料品が安くなる'],c:1,ex:'企業のCO2削減コストが電気料金に転嫁される可能性がある。一方で再エネ普及の加速も期待される。'},
+{ax:'reform',q:'現在の内閣総理大臣は誰？',o:['岸田文雄','石破茂','高市早苗','小泉進次郎'],c:2,ex:'高市早苗氏は2025年10月就任の第105代首相。史上初の女性内閣総理大臣。'},
+{ax:'defense',q:'日本の防衛費がGDP比で最も近い国は？',o:['ドイツ','フランス','イスラエル','韓国'],c:3,ex:'日本はGDP比2%目標。ドイツ・フランスも約2%、韓国は約2.5%。イスラエルは4〜5%と突出。'},
+{ax:'gender',q:'選択的夫婦別姓が実現すると変わることは？',o:['全員が別姓になる','結婚時に同姓・別姓を選べる','子の姓が自動的に母方になる','親族名簿が廃止される'],c:1,ex:'「選択的」なので、同姓を選ぶ夫婦も別姓を選ぶ夫婦も両方認められる制度。強制ではない。'},
+{ax:'agri',q:'宮崎県の食料自給率は全国何位？',o:['1位','5位','10位','30位'],c:0,ex:'宮崎県はカロリーベース食料自給率で全国1位(約280%)。農業県として日本の食を支える。',nid:7},
+{ax:'energy',q:'ガソリン価格上昇が宮崎に大きく影響する理由は？',o:['ガソリンスタンド数が少ない','公共交通が限られ車依存度が高い','ガソリン税が高い','観光客が減る'],c:1,ex:'宮崎県は公共交通網が限られ、1世帯あたりの自動車保有台数は全国5位。通勤通学に車が必須のため影響が大きい。',nid:4},
+{ax:'reform',q:'2026年衆院選の宮崎1区で当選したのは？',o:['武井俊輔','渡辺創','滋井邦晃','横田朋大'],c:1,ex:'中道改革連合・渡辺創氏が当選。武井俊輔氏(自民)は比例復活。',nid:3},
+// ==== PRO会員限定: より深い実生活問題 ====
+{ax:'tax',q:'あなたが月収20万円の単身世帯だとして、食料品消費税10%→0%で月あたりいくら得する？',o:['約500円','約2,500円','約5,000円','約10,000円'],c:1,ex:'食費は月収の約1/8(約2.5万円)が一般的。その10%分の消費税2,500円が削減される計算。世帯構成や支出パターンで変動。',pro:true},
+{ax:'defense',q:'中東情勢の悪化で原油価格が1バレル100ドル→150ドルになると、ガソリン価格は約何円上がる?',o:['約10円/L','約25円/L','約50円/L','約100円/L'],c:1,ex:'原油価格50ドル上昇は、為替や税制の影響もあるが、ガソリン小売価格に約20〜30円/Lの上昇要因となる。',pro:true},
+{ax:'reform',q:'日銀の政策金利が0.5%→1.0%になった時、3000万円の変動金利住宅ローン(残り30年)の月々の返済額は約?',o:['変わらない','約7,000円増','約15,000円増','約30,000円増'],c:2,ex:'金利0.5%上昇で月々約7,500円の負担増(3,000万円×0.5%÷12)。30年総額で約270万円の負担増に相当する。',pro:true},
+{ax:'gender',q:'選択的夫婦別姓が実現しても発生しない状況は？',o:['同姓夫婦も別姓夫婦も存在する','子供の姓を選択する必要がある','既婚者が自動的に旧姓に戻る','別姓による相続手続きが発生する'],c:2,ex:'「選択的」なので既婚者に自動的な変更はない。希望する人のみ手続きをして別姓に変更できる。',pro:true},
+{ax:'agri',q:'円安が宮崎の農業に与える「両面の影響」として正しい組み合わせは？',o:['輸出増・肥料費増','輸出増・電気代減','輸出減・肥料費減','輸出減・電気代増'],c:0,ex:'円安は農産物輸出にはプラスだが、海外から輸入する肥料・飼料・燃料の価格も上昇するため経営コストが増える両面性がある。',pro:true},
+{ax:'energy',q:'再エネ100%を宮崎で実現する場合、最大の障壁は？',o:['日照不足','風力不足','送電網の容量','農地との競合'],c:3,ex:'宮崎は日照時間全国1位で太陽光発電のポテンシャルは十分。しかし農地への太陽光パネル設置は食料生産と競合する問題がある。',pro:true},
+{ax:'reform',q:'投票率を上げる施策として実効性が議論されているのは？',o:['投票時間の短縮','投票所の削減','ネット投票の導入','投票年齢の引き上げ'],c:2,ex:'エストニアなどで実施されているネット投票は特に若者世代の投票率向上が期待される。一方でセキュリティ懸念もある。',pro:true},
+{ax:'defense',q:'新田原基地にF-35B配備が決まった場合、地元住民が直面する最も現実的な課題は？',o:['地価の下落','離着陸訓練の騒音','水道水の汚染','電波障害'],c:1,ex:'F-35Bは既存のF-15より騒音が大きい。防音工事の補助金拡充が求められている。基地経済効果と生活環境のトレードオフ。',nid:2,pro:true},
+{ax:'tax',q:'ふるさと納税の実質負担が2000円で済む人の条件は？',o:['年収500万以上','所得税・住民税を納めている','独身である','地方在住者'],c:1,ex:'ふるさと納税は所得税・住民税の控除を活用する仕組み。課税されている所得がないと控除メリットが得られない。',pro:true},
+{ax:'agri',q:'スーパーで「国産」表示の食品が輸入品より高い最大の理由は？',o:['味が良いから','生産コストが高いから','輸送費が安いから','ブランド戦略だから'],c:1,ex:'人件費・土地代・飼料費の高さから生産コストが高い。逆に輸入品は大規模生産や為替の恩恵で安価になる傾向。',pro:true}
+];
+// Dynamic dates: today and past 6 days
+var now=new Date();var dates=[];
+for(var d=0;d<7;d++){var dt=new Date(now);dt.setDate(dt.getDate()-d);var m=dt.getMonth()+1;var dy=dt.getDate();dates.push(dt.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(dy<10?'0'+dy:dy));}
+// 基本は10問/日(無料), +10問/日(PRO限定)
+var basicPool=pool.filter(function(p){return !p.pro;});
+var proPool=pool.filter(function(p){return p.pro;});
+for(var d=0;d<dates.length;d++){
+// 基本10問
+for(var i=0;i<10;i++){
+var p=basicPool[(d*3+i)%basicPool.length];
+QDB.push({id:'q'+d+'_'+i,date:dates[d],type:'knowledge',axis:p.ax,newsId:p.nid||null,question:p.q,options:p.o,correct:p.c,explanation:p.ex,isPro:false});}
+// PRO限定追加問題10問
+for(var i=0;i<10;i++){
+var p=proPool[(d*3+i)%proPool.length];
+QDB.push({id:'qp'+d+'_'+i,date:dates[d],type:'knowledge',axis:p.ax,newsId:p.nid||null,question:p.q,options:p.o,correct:p.c,explanation:p.ex,isPro:true});}
+}
+})();
+
+var COMPASS_OPTS=['強く反対','やや反対','どちらでもない','やや賛成','強く賛成'];
+var COMPASS_DEEP=[
+{id:'c1',axis:'tax',q:'消費税率の引き上げは社会保障の安定に必要だ'},
+{id:'c2',axis:'tax',q:'食料品の消費税はゼロにすべきだ'},
+{id:'c3',axis:'tax',q:'法人税を下げることが経済成長につながる'},
+{id:'c4',axis:'defense',q:'防衛費をGDP比2%以上に増やすべきだ'},
+{id:'c5',axis:'defense',q:'日米同盟は安全保障の根幹だ'},
+{id:'c6',axis:'defense',q:'自衛隊の活動範囲を拡大すべきだ'},
+{id:'c7',axis:'agri',q:'食料自給率を50%以上に引き上げるべきだ'},
+{id:'c8',axis:'agri',q:'農家への補助金は増やすべきだ'},
+{id:'c9',axis:'agri',q:'自由貿易協定は農業にプラスだ'},
+{id:'c10',axis:'energy',q:'原発は再稼働すべきだ'},
+{id:'c11',axis:'energy',q:'2050年カーボンニュートラルは実現可能だ'},
+{id:'c12',axis:'energy',q:'再エネ導入を最優先すべきだ'},
+{id:'c13',axis:'gender',q:'選択的夫婦別姓を導入すべきだ'},
+{id:'c14',axis:'gender',q:'同性婚を法律で認めるべきだ'},
+{id:'c15',axis:'gender',q:'議会にクオータ制を導入すべきだ'},
+{id:'c16',axis:'reform',q:'道州制を導入し中央省庁を縮小すべきだ'},
+{id:'c17',axis:'reform',q:'規制緩和で自由な経済活動を促すべきだ'},
+{id:'c18',axis:'reform',q:'デジタル庁の行政DXは十分進んでいる'},
+{id:'c19',axis:'tax',q:'地方交付税を増やすべきだ'},
+{id:'c20',axis:'agri',q:'宮崎の有機農業は日本のモデルケースになれる'}
+];
+var COMPASS_QUICK=[
+{id:'cq1',axis:'tax',q:'消費税率は引き下げるべきだ'},
+{id:'cq2',axis:'defense',q:'防衛費をGDP比2%以上に増やすべきだ'},
+{id:'cq3',axis:'agri',q:'食料自給率の向上を最優先すべきだ'},
+{id:'cq4',axis:'energy',q:'再エネへの転換を加速すべきだ'},
+{id:'cq5',axis:'gender',q:'ジェンダー平等を積極的に進めるべきだ'},
+{id:'cq6',axis:'reform',q:'行政の規制改革を大幅に進めるべきだ'}
+];
+var PTYPES={
+'CHL':{n:'アクティブ改革派',i:'\u26A1',d:'変革志向で安全保障も重視。社会の多様性と構造改革を同時に進めるタイプ'},
+'CHT':{n:'実行力重視タイプ',i:'\u{1F3AF}',d:'変革志向で安全保障重視。経済成長と伝統的な価値観のバランスを取るタイプ'},
+'CPL':{n:'グローバル共生派',i:'\u{1F30D}',d:'変革志向で対話重視。国際協調と社会の多様性を大切にするタイプ'},
+'CPT':{n:'堅実改革派',i:'\u{1F3DB}\uFE0F',d:'変革志向で対話重視。経済改革を進めつつ安定した社会を目指すタイプ'},
+'SHL':{n:'現実バランス派',i:'\u{1F525}',d:'安定志向で安全保障重視。現実的な判断と社会の多様性を両立するタイプ'},
+'SHT':{n:'安定・秩序重視派',i:'\u{1F6E1}\uFE0F',d:'安定志向で安全保障重視。秩序と伝統的な価値観を大切にするタイプ'},
+'SPL':{n:'対話・共生派',i:'\u{1F33F}',d:'安定志向で対話重視。平和的な国際関係と社会の多様性を志向するタイプ'},
+'SPT':{n:'地域密着派',i:'\u{1F33E}',d:'安定志向で対話重視。地元の暮らしと地域文化を守ることを大切にするタイプ'}
+};
+
+// ===== STATE =====
+var S={tab:'quiz',user:null,premium:false,profile:null,pin:'1234',histLocked:true,
+obPhase:null,obMode:null,obIdx:0,obAns:{},
+history:[],hSub:null,hRec:null,hAdd:null,
+newsOpenId:null,newsFilter:'\u5168\u3066',newsRead:{},
+compareElec:0,compareShowMe:false,settingsSub:null,
+aiCache:{},bookmarks:[],
+quizToday:[],quizAns:{},quizDone:false,quizStreak:0,quizHist:[],
+interest:{tax:{s:0,c:0},defense:{s:0,c:0},agri:{s:0,c:0},energy:{s:0,c:0},gender:{s:0,c:0},reform:{s:0,c:0}},
+lastQDate:null,qIdx:0,qShow:false,
+pType:null,pTypeHist:[]
+};
+
+// ===== PERSISTENCE =====
+function sv(){try{var d=JSON.stringify({h:S.history,p:S.profile,u:S.user,pr:S.premium,bm:S.bookmarks,qa:S.quizAns,qh:S.quizHist,qs:S.quizStreak,qd:S.lastQDate,is:S.interest,pt:S.pType,pth:S.pTypeHist,pin:S.pin,nr:S.newsRead});localStorage.setItem('pq3',d);}catch(e){}}
+function ld(){try{var d=localStorage.getItem('pq3');if(!d)return;var o=JSON.parse(d);
+S.history=o.h||[];S.profile=o.p||null;S.user=o.u||null;S.premium=o.pr||false;S.bookmarks=o.bm||[];
+S.quizAns=o.qa||{};S.quizHist=o.qh||[];S.quizStreak=o.qs||0;S.lastQDate=o.qd||null;
+S.interest=o.is||S.interest;S.pType=o.pt||null;S.pTypeHist=o.pth||[];S.pin=o.pin||'1234';S.newsRead=o.nr||{};
+}catch(e){}}
+
+// ===== HELPERS =====
+function today(){var d=new Date();var m=d.getMonth()+1;var dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(dy<10?'0'+dy:dy);}
+function sp(t){return '<span style="display:inline-flex;align-items:center;gap:8px"><span class="spin"></span>'+(t||'')+'</span>';}
+function sh(t){return '<div class="section-title">'+t+'</div>';}
+function btn(c,f,l){return '<button class="btn '+c+'" onclick="'+f+'">'+l+'</button>';}
+function bb(f,l){return '<div class="back-btn" onclick="'+f+'"><span style="font-size:18px">\u2190</span>'+l+'</div>';}
+function axN(k){for(var i=0;i<PA.length;i++)if(PA[i].key===k)return PA[i].name;return k;}
+function axC(k){return{tax:'var(--amber)',defense:'var(--red)',agri:'var(--green)',energy:'var(--teal)',gender:'var(--rose)',reform:'var(--purple)'}[k]||'var(--ac)';}
+function axCL(k){return{tax:'var(--amberL)',defense:'var(--redL)',agri:'var(--greenL)',energy:'var(--tealL)',gender:'var(--roseL)',reform:'var(--purpleL)'}[k]||'var(--acL)';}
+function getE(id){for(var i=0;i<EC.length;i++)if(EC[i].id===id)return EC[i];return null;}
+function sortH(){return S.history.slice().sort(function(a,b){var ea=getE(a.eid);var eb=getE(b.eid);return(eb?eb.date:0)-(ea?ea.date:0);});}
+function tInfo(c){return PTYPES[c]||{n:'未診断',i:'❓',d:''};}
+function totalQ(){var c=0;for(var i=0;i<PA.length;i++){var k=PA[i].key;c+=S.interest[k]?S.interest[k].c:0;}return c;}
+function topI(){var t=null,ts=-1;for(var i=0;i<PA.length;i++){var k=PA[i].key;var s=S.interest[k]?S.interest[k].s:0;if(s>ts){ts=s;t=PA[i].name;}}return t||'--';}
+function calcM(t){if(!S.profile||!S.profile.st)return 0;var td=0,c=0;for(var i=0;i<PA.length;i++){var k=PA[i].key;var mv=S.profile.st[k];var cv=t[k];if(mv!==undefined&&cv!==undefined){td+=Math.abs(mv-cv);c++;}}return c>0?Math.round((1-td/(4*c))*100):0;}
+function adSlot(){return S.premium?'':'<div class="ad-slot">📢 広告スペース<br><span style="font-size:10px;margin-top:4px;display:block">PRO会員なら広告なし</span></div>';}
+function calcType(st){var e=((st.tax||3)+(st.reform||3))/2;var s=st.defense||3;var so=((st.gender||3)+(st.energy||3))/2;return(e>=3?'C':'S')+(s>=3?'H':'P')+(so>=3?'L':'T');}
+
+// ===== AI (Mock Mode - デモ用固定応答) =====
+// 本番環境では Claude API (claude-sonnet-4-20250514) と連携予定
+function callAI(sys,usr,mx){var key=(sys+usr).slice(0,60);if(S.aiCache[key])return Promise.resolve(S.aiCache[key]);
+return new Promise(function(resolve){
+var delay=800+Math.floor(Math.random()*1200);
+setTimeout(function(){var t=mockAI(sys,usr);S.aiCache[key]=t;resolve(t);},delay);
+});}
+
+function mockAI(sys,usr){
+// ニュース分析
+if(usr.indexOf('ニュース:')===0||sys.indexOf('ニュース')>=0){
+var newsResps=[
+'この政策は宮崎県民の生活に直接影響する可能性が高いです。特に物価高に苦しむ若年層や低所得世帯への支援効果が期待される一方、長期的な財政への影響も議論の的となっています。宮崎大学の経済学研究によれば、地方部での消費喚起効果は都市部より大きく、商店街や地域経済への波及効果も見込まれます。一方で、持続可能な財源確保が政策の成否を分ける鍵となりそうです。有権者としては、短期的な恩恵と長期的な負担のバランスを見極める視点が求められます。',
+'この問題は単純な賛否では語れない複雑さを持っています。賛成派は経済的効果や社会的意義を強調しますが、反対派は財政負担や制度設計の不備を指摘しており、どちらの主張にも一定の説得力があります。宮崎県のような地方にとっては、都市部とは異なる影響が生じる可能性があり、地域特性を踏まえた議論が必要です。若者世代は将来世代として、短期的な損得だけでなく、10年後・20年後の日本社会への影響を考慮して判断することが重要でしょう。',
+'この動きは日本の政治・経済構造の変化を象徴する出来事と言えます。背景には国際情勢の変化や人口動態の変化があり、単発のニュースとしてではなく、より大きな文脈の中で捉える必要があります。宮崎県民にとっては、一次産業への影響、エネルギー価格への影響、そして地方自治への影響という3つの視点から考えると理解が深まります。今後の動向を継続的に注視することで、自分の生活との接点が見えてくるはずです。'];
+return newsResps[Math.floor(Math.random()*newsResps.length)];}
+// 投票評価
+if(usr.indexOf('投票評価')>=0||sys.indexOf('アナリスト')>=0&&usr.indexOf('候補')>=0){
+var voteResps=[
+'この投票選択は、地域の課題と候補者の政策的立場が一致した結果と評価できます。選挙区の有権者が重視する「地域経済」「雇用」「社会保障」の3つの論点において、投票先候補者は一定の具体性を持った政策を示していました。当選後の活動次第では、次回選挙でも継続支持につながる可能性があります。ただし、公約の実現度合いを継続的に監視することも、民主主義における有権者の重要な役割です。',
+'この投票は政策的一貫性よりも、候補者の実行力や地域への貢献度を重視した判断と考えられます。地方選挙では政党の党派性よりも、候補者個人の資質が重要視される傾向があり、この選択もその文脈で理解できます。ただし、国政課題への対応力という観点では、所属政党の方針も無視できない要素です。今後は党派を超えた政策評価の視点も加えていくと、より多面的な有権者意識が育つでしょう。'];
+return voteResps[Math.floor(Math.random()*voteResps.length)];}
+// コンパス照合
+if(usr.indexOf('あなたのスタンス')>=0||sys.indexOf('一致度')>=0){
+var matchResps=[
+'あなたと投票先候補者のスタンスは、特に「経済政策」と「社会保障」の分野で高い一致を示しています。一方で「外交・安全保障」については若干の差異があり、候補者の方がやや強硬な立場を取る傾向が見られます。全体としては支持の妥当性が裏付けられていますが、差異のある論点については、候補者の発言や行動を注視することで、より納得感のある支持判断ができるでしょう。政治は完全一致を求めるものではなく、最も重要な論点で共有できる候補者を選ぶ営みと言えます。',
+'あなたのスタンスと候補者には相違点も存在しますが、これは民主主義において自然なことです。6軸すべてで一致する候補者は稀であり、自分が最も重視する2〜3軸で共感できるかが重要です。今回の投票先は、地方分権と再生可能エネルギーの推進という点であなたの価値観と共鳴していますが、消費税政策では見解が分かれます。今後の国会活動を通じて、この差異が縮まるか拡大するかを見守ることが、有権者としての継続的な関与になります。'];
+return matchResps[Math.floor(Math.random()*matchResps.length)];}
+// 任期中の歩み
+if(usr.indexOf('当選後の活動')>=0||usr.indexOf('任期')>=0){
+return '1. 国会での主な質疑・法案への関与\n予算委員会や地方創生特別委員会で積極的に質疑を行い、特に地方交付税の見直しや一次産業支援策について複数回の政府質問を展開しています。\n\n2. 宮崎県・選挙区への貢献活動\n月1〜2回のペースで選挙区内での「県民対話集会」を開催し、有権者との直接対話を継続。農家・漁業関係者との意見交換会にも定期的に出席しています。\n\n3. 所属政党内での役職・ポジション\n党の政策調査会のメンバーとして、地方政策部会での発言力を高めています。若手議員の中では比較的早期に党内での存在感を示す立場に就いています。\n\n4. 推進している重点政策テーマ\n有機農業振興、再生可能エネルギー特区構想、地方創生のための財源移譲を3本柱として掲げ、具体的な法案化に向けた議員立法の準備を進めています。\n\n5. 有権者からの評価と今後の課題\n地元での発信力・実行力は高く評価される一方、国政全体における存在感の確立、外交・安全保障分野での知見の蓄積が今後の課題として指摘されています。\n\n※上記は公開情報に基づく一般的な議員活動のパターン分析です。最新の詳細情報は公式サイト等で確認してください。';}
+// デフォルト
+return 'この政治課題については、多角的な視点からの分析が必要です。政策の短期的影響と長期的影響、都市部と地方への影響の違い、世代間での利害の違いなど、複数の軸で考えることで理解が深まります。宮崎県のような地方にとっては、中央の政策がそのまま当てはまらないケースも多く、地域特性を踏まえた議論が求められます。有権者として自分の立場を持つことが、より良い社会を作る第一歩です。';
+}
+function cleanAI(t){return t.replace(/#{1,6}\s*/g,'').replace(/\*\*([^*]+)\*\*/g,'\u300C$1\u300D').replace(/\*([^*]+)\*/g,'$1').replace(/^-\s/gm,'\u30FB');}
+function getLevel(){var q=totalQ();if(q>=100)return{lv:10,n:'政治マスター',nx:999,i:'\u{1F451}'};if(q>=70)return{lv:9,n:'政策通',nx:100,i:'\u{1F393}'};if(q>=50)return{lv:8,n:'論客',nx:70,i:'\u{1F4CA}'};if(q>=35)return{lv:7,n:'分析家',nx:50,i:'\u{1F50D}'};if(q>=25)return{lv:6,n:'探究者',nx:35,i:'\u{1F4D6}'};if(q>=18)return{lv:5,n:'中級者',nx:25,i:'\u2B50'};if(q>=12)return{lv:4,n:'学習者',nx:18,i:'\u{1F4DD}'};if(q>=7)return{lv:3,n:'関心層',nx:12,i:'\u{1F4A1}'};if(q>=3)return{lv:2,n:'入門者',nx:7,i:'\u{1F331}'};return{lv:1,n:'初心者',nx:3,i:'\u{1F530}'};}
+function adSlot(){return S.premium?'':'<div class="ad-slot">AD<br><span style="font-size:10px;display:block;margin-top:4px;cursor:pointer" onclick="showPremium()">PRO会員で非表示 \u203A</span></div>';}
+
+// ===== NAV =====
+var _tabs=['home','quiz','news','compare','history','settings'];
+function go(t){S.tab=t;S.newsOpenId=null;S.settingsSub=null;S.hSub=null;S.hRec=null;S.hAdd=null;hideOv();render();}
+function goTab(i){go(_tabs[i]);}
+function goHome(){go('home');}function goQuiz(){go('quiz');}function goNews(){go('news');}function goCompare(){go('compare');}function goHistory(){go('history');}function goSettings(){go('settings');}
+function goInterest(){S.tab='home';S.newsOpenId=null;S.settingsSub=null;hideOv();render();setTimeout(function(){var el=document.getElementById('interestMap');if(el)el.scrollIntoView({behavior:'smooth'});},150);}
+function hideOv(){document.getElementById('ov').style.display='none';}
+function showOv(h){var e=document.getElementById('ov');e.innerHTML=h;e.style.display='block';}
+
+function render(){
+var scr=document.getElementById('scr');
+var fn={quiz:pgQuiz,home:pgHome,news:pgNews,compare:pgCompare,history:pgHistory,settings:pgSettings};
+scr.innerHTML=(fn[S.tab]||pgHome)();scr.scrollTop=0;renderNav();updateClock();
+}
+function renderNav(){
+var lb=['Home','Quiz','News','Compare','History','Settings'];
+var n=document.getElementById('nav');var h='';
+for(var i=0;i<_tabs.length;i++){var tabIc={home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0v-4a1 1 0 011-1h2a1 1 0 011 1v4"/></svg>',quiz:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',news:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2M7 16h6M7 12h6"/></svg>',compare:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/></svg>',history:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M10.3 4.3c.4-1.7 2.9-1.7 3.3 0a1.7 1.7 0 002.6 1.1c1.5-.9 3.3.8 2.4 2.4a1.7 1.7 0 001 2.5c1.8.4 1.8 2.9 0 3.4a1.7 1.7 0 00-1 2.5c.9 1.6-.9 3.3-2.4 2.4a1.7 1.7 0 00-2.5 1c-.5 1.8-3 1.8-3.4 0a1.7 1.7 0 00-2.5-1c-1.6.9-3.3-.8-2.4-2.4a1.7 1.7 0 00-1-2.5c-1.8-.5-1.8-3 0-3.4a1.7 1.7 0 001-2.5c-.9-1.6.8-3.3 2.4-2.4 1 .6 2.3.1 2.6-1z"/></svg>'};h+='<div class="ntab'+(_tabs[i]===S.tab?' act':'')+'" onclick="goTab('+i+')">'+(tabIc[_tabs[i]]||'')+'<span>'+lb[i]+'</span></div>';}n.innerHTML=h;}
+function updateClock(){var d=new Date();var h=d.getHours();var m=d.getMinutes();document.getElementById('clock').textContent=(h<10?'0'+h:h)+':'+(m<10?'0'+m:m);}
+setInterval(updateClock,30000);
+
+// ===== QUIZ =====
+function getQs(){var t=today();var qs=[];for(var i=0;i<QDB.length;i++){if(QDB[i].date===t){if(QDB[i].isPro&&!S.premium)continue;qs.push(QDB[i]);}}
+if(!qs.length){var ds={};for(var i=0;i<QDB.length;i++)ds[QDB[i].date]=1;var sk=Object.keys(ds).sort().reverse();if(sk.length){var ud=sk[0];for(var i=0;i<QDB.length;i++){if(QDB[i].date===ud){if(QDB[i].isPro&&!S.premium)continue;qs.push(QDB[i]);}}}}return qs;}
+function initQ(){S.quizToday=getQs();var a=0;for(var i=0;i<S.quizToday.length;i++)if(S.quizAns[S.quizToday[i].id]!==undefined)a++;
+S.quizDone=a>=S.quizToday.length&&S.quizToday.length>0;S.qIdx=Math.min(a,Math.max(0,S.quizToday.length-1));if(S.quizDone)S.tab='home';}
+function ansQ(qi,ai){
+var q=S.quizToday[qi];if(!q||S.quizAns[q.id]!==undefined)return;
+S.quizAns[q.id]=ai;S.qShow=true;saveToSupabase(q,ai);
+var sc=S.interest[q.axis];if(sc){sc.c++;if(q.type==='knowledge')sc.s+=ai===q.correct?3:1;else sc.s+=2;if(sc.s>100)sc.s=100;}
+S.quizHist.push({d:today(),id:q.id,ax:q.axis});
+if(S.lastQDate!==today()){var y=new Date();y.setDate(y.getDate()-1);var ym=y.getMonth()+1;var yd=y.getDate();var ys=y.getFullYear()+'-'+(ym<10?'0'+ym:ym)+'-'+(yd<10?'0'+yd:yd);S.quizStreak=(S.lastQDate===ys||!S.lastQDate)?S.quizStreak+1:1;S.lastQDate=today();}
+var a=0;for(var i=0;i<S.quizToday.length;i++)if(S.quizAns[S.quizToday[i].id]!==undefined)a++;S.quizDone=a>=S.quizToday.length;
+// Update MBTI from interest
+if(S.pType&&totalQ()>=3){
+var is=S.interest;var e=((is.tax?is.tax.s:0)+(is.reform?is.reform.s:0))/2;var d2=is.defense?is.defense.s:0;var so=((is.gender?is.gender.s:0)+(is.energy?is.energy.s:0))/2;
+var nt=(e>=50?'C':'S')+(d2>=50?'H':'P')+(so>=50?'L':'T');if(nt!==S.pType){S.pTypeHist.push({d:today(),f:S.pType,t:nt});S.pType=nt;}}
+sv();render();}
+function nextQ(){S.qShow=false;if(S.qIdx<S.quizToday.length-1)S.qIdx++;render();}
+function showQDone(){S.qShow=false;render();}
+
+// ===== PAGE: QUIZ =====
+function pgQuiz(){
+if(!S.quizToday.length)return '<div style="padding:40px 16px;text-align:center"><h3>今日のクイズ</h3><p style="color:var(--sub);margin-top:8px">まだ配信されていません</p></div>';
+if(S.quizDone&&!S.qShow){
+var cr=0,tt=0;for(var i=0;i<S.quizToday.length;i++){var q=S.quizToday[i];if(q.type==='knowledge'){tt++;if(S.quizAns[q.id]===q.correct)cr++;}}
+var h='<div class="fade-in" style="padding:24px 16px;text-align:center"><div style="font-size:48px;margin:16px 0">🎉</div><h2>今日のクイズ完了！</h2>';
+if(tt>0)h+='<p style="color:var(--sub);margin:8px 0">正答率: '+cr+'/'+tt+'</p>';
+if(S.quizStreak>0)h+='<div style="margin:12px 0"><span class="streak-badge">🔥 '+S.quizStreak+'日連続</span></div>';
+if(!S.premium)h+='<div class="card" style="background:var(--purpleL);text-align:center"><div style="font-size:13px;font-weight:700;color:var(--purple)">⭐ PRO会員で追加問題に挑戦</div><div style="margin-top:8px">'+btn('btn-out','showPremium()','PRO会員になる')+'</div></div>';
+h+='<div style="margin-top:16px">'+btn('btn-ac','goNews()','ニュースを読む')+'</div>';
+h+='<div style="margin-top:8px">'+btn('btn-out','goHome()','ホームへ')+'</div></div>';return h;}
+var q=S.quizToday[S.qIdx];if(!q)return '';var ans=S.quizAns[q.id];var sr=ans!==undefined;
+var h='<div style="padding:16px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:18px;font-weight:800">今日のクイズ</div><div style="font-size:12px;color:var(--dim)">'+(S.qIdx+1)+'/'+S.quizToday.length+'</div></div>';
+if(S.quizStreak>0)h+='<span class="streak-badge">🔥 '+S.quizStreak+'</span>';h+='</div>';
+h+='<div class="dot-ind" style="margin-bottom:12px">';for(var i=0;i<S.quizToday.length;i++){var a2=i===S.qIdx?' act':'';var dn=S.quizAns[S.quizToday[i].id]!==undefined;h+='<span class="'+a2+'"'+(dn&&i!==S.qIdx?' style="background:var(--ac)"':'')+'></span>';}h+='</div>';
+h+='<div class="card fade-in" style="margin:0 16px"><div style="margin-bottom:12px"><span class="tag" style="background:'+axCL(q.axis)+';color:'+axC(q.axis)+'">'+axN(q.axis)+'</span>';
+if(q.isPro)h+=' <span class="tag" style="background:var(--purpleL);color:var(--purple)">⭐ PRO</span>';
+h+='</div><div style="font-size:16px;font-weight:700;line-height:1.5;margin-bottom:16px">'+q.question+'</div>';
+var ks=['A','B','C','D'];
+for(var i=0;i<q.options.length;i++){var cl='qopt';if(sr){if(i===q.correct)cl+=' correct';else if(i===ans)cl+=' wrong';else cl+=' dimmed';}
+h+='<div class="'+cl+'"'+(sr?'':' onclick="ansQ('+S.qIdx+','+i+')"')+'><span class="qk">'+ks[i]+'</span><span style="font-size:14px;font-weight:500">'+q.options[i]+'</span></div>';}
+if(sr){h+='<div style="margin-top:16px;padding:14px;background:var(--s2);border-radius:10px">';
+h+='<div style="font-weight:700;color:'+(ans===q.correct?'var(--ac)':'var(--red)')+';margin-bottom:6px">'+(ans===q.correct?'✅ 正解！':'❌ 不正解')+'</div>';
+h+='<div style="font-size:13px;color:var(--sub);line-height:1.5;margin-top:6px">'+q.explanation+'</div></div>';
+var pts=ans===q.correct?3:1;
+h+='<div class="score-bump">📊 '+axN(q.axis)+' +'+pts+'pt</div>';
+if(q.newsId)h+='<div style="margin-top:12px;padding:10px;background:var(--blueL);border-radius:8px;cursor:pointer" onclick="openNQ('+q.newsId+')"><span style="font-size:12px;color:var(--blue);font-weight:600">📰 関連記事 →</span></div>';
+h+='<div style="margin-top:16px">';if(S.quizDone)h+=btn('btn-ac','showQDone()','結果を見る');else h+=btn('btn-ac','nextQ()','次の問題 →');h+='</div>';}
+h+='</div>';
+// Ad after question
+h+=adSlot();
+return h;}
+function openNQ(id){S.newsOpenId=id;S.tab='news';render();}
+
+// ===== PAGE: HOME =====
+function pgHome(){
+var h='<div class="hero-quiz"><div style="font-size:12px;opacity:.7">POLITIQ</div><div style="font-size:22px;font-weight:800;margin:4px 0">政治をもっと身近に</div>';
+if(S.pType){var ti=tInfo(S.pType);h+='<div style="display:flex;align-items:center;gap:8px;margin:8px 0"><span style="font-size:28px">'+ti.i+'</span><div><div style="font-size:14px;font-weight:700">'+ti.n+' ('+S.pType+')</div></div></div>';}
+if(totalQ()>0){var lv=getLevel();h+='<div style="display:flex;align-items:center;gap:8px;margin:6px 0;padding:6px 10px;background:rgba(255,255,255,.1);border-radius:8px"><span style="font-size:16px">'+lv.i+'</span><div style="flex:1"><div style="font-size:12px;font-weight:700">Lv.'+lv.lv+' '+lv.n+'</div><div style="height:3px;background:rgba(255,255,255,.15);border-radius:2px;margin-top:3px"><div style="height:100%;width:'+Math.round(totalQ()/lv.nx*100)+'%;background:var(--ac);border-radius:2px"></div></div></div><span style="font-size:10px;opacity:.6">'+totalQ()+'/'+lv.nx+'</span></div>';}
+if(!S.quizDone){var a=0;for(var i=0;i<S.quizToday.length;i++)if(S.quizAns[S.quizToday[i].id]!==undefined)a++;
+h+='<div style="display:flex;align-items:center;gap:12px;margin:8px 0"><div style="flex:1;height:4px;background:rgba(255,255,255,.2);border-radius:2px"><div style="height:100%;width:'+(S.quizToday.length?Math.round(a/S.quizToday.length*100):0)+'%;background:var(--ac);border-radius:2px"></div></div><span style="font-size:12px;opacity:.8">'+a+'/'+S.quizToday.length+'</span></div>';
+h+=btn('btn-ac','goQuiz()','今日のクイズ ⚡');}else{h+='<div style="display:flex;align-items:center;gap:8px;margin:8px 0"><span>✅ クイズ完了</span>';if(S.quizStreak>0)h+='<span class="streak-badge" style="font-size:11px">🔥 '+S.quizStreak+'</span>';h+='</div>';}
+h+='</div>';
+// Interest map
+if(totalQ()>0){h+='<div id="interestMap"></div>';h+=sh('政治関心マップ');h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:13px;color:var(--sub)">最も関心: <strong>'+topI()+'</strong></div><div style="font-size:12px;color:var(--ac);font-weight:700">'+getLevel().i+' Lv.'+getLevel().lv+'</div></div>';
+for(var i=0;i<PA.length;i++){var k=PA[i].key;var s=S.interest[k]?S.interest[k].s:0;
+h+='<div style="display:flex;align-items:center;gap:8px;margin:2px 0"><span style="font-size:11px;width:70px;color:var(--sub)">'+PA[i].name+'</span><div style="flex:1" class="radar-bar"><div class="radar-fill" style="width:'+s+'%;background:'+axC(k)+'"></div></div><span style="font-size:11px;font-weight:700;width:20px">'+s+'</span></div>';}
+h+='</div>';}
+h+=adSlot();
+h+=sh('LATEST');var f=NEWS[0];h+='<div class="news-feat" onclick="openN('+f.id+')"><img src="'+f.img+'" onerror="this.remove()"><div class="overlay"><span class="tag" style="background:'+f.color+';color:#fff">'+f.cat+'</span><div style="font-size:15px;font-weight:700;margin-top:4px">'+f.hl+'</div></div></div>';
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 16px">';
+var mn=[{i:'⚡',l:'クイズ',f:'goQuiz()',bg:'var(--acL)',c:'var(--acD)'},{i:'⇔',l:'候補者比較',f:'goCompare()',bg:'var(--blueL)',c:'var(--blue)'},{i:'🧭',l:'コンパス診断',f:'startCompass()',bg:'var(--purpleL)',c:'var(--purple)'},{i:'🗳️',l:'投票履歴',f:'goHistory()',bg:'var(--amberL)',c:'var(--amber)'}];
+for(var i=0;i<mn.length;i++){var m=mn[i];h+='<div style="background:'+m.bg+';border-radius:12px;padding:14px;cursor:pointer;text-align:center" onclick="'+m.f+'"><div style="font-size:24px;margin-bottom:4px">'+m.i+'</div><div style="font-size:12px;font-weight:700;color:'+m.c+'">'+m.l+'</div></div>';}
+h+='</div>';return h;}
+
+// ===== PAGE: NEWS =====
+function pgNews(){if(S.newsOpenId!==null)return pgND();
+var h='';var f=NEWS[0];h+='<div class="news-feat" onclick="openN('+f.id+')"><img src="'+f.img+'" onerror="this.remove()"><div class="overlay"><span class="tag" style="background:'+f.color+';color:#fff">'+f.cat+'</span><div style="font-size:15px;font-weight:700;margin-top:4px">'+f.hl+'</div></div></div>';
+h+='<div style="display:flex;gap:6px;padding:8px 16px;overflow-x:auto">';for(var i=0;i<_nc.length;i++){var c=_nc[i];h+='<div style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;'+(S.newsFilter===c?'background:var(--ink);color:#fff':'background:var(--s2);color:var(--sub)')+'" onclick="setNF('+i+')">'+c+'</div>';}h+='</div>';
+var fl=NEWS.filter(function(n){return S.newsFilter==='\u5168\u3066'||n.cat===S.newsFilter;});
+h+='<div style="padding:0 16px">';for(var i=0;i<fl.length;i++){var n=fl[i];
+h+='<div class="news-card" onclick="openN('+n.id+')"><img src="'+n.img+'" onerror="this.remove()"><div style="flex:1"><span class="tag" style="background:'+n.colorL+';color:'+n.color+'">'+n.cat+'</span><div style="font-size:13px;font-weight:700;line-height:1.3;margin-top:4px">'+n.hl+'</div><div style="font-size:10px;color:var(--dim);margin-top:4px">'+n.date+'</div></div></div>';
+if(i===3)h+=adSlot();}h+='</div>';return h;}
+function setNF(i){S.newsFilter=_nc[i];render();}
+function openN(id){S.newsOpenId=id;
+// Track news read for interest
+var a=null;for(var i=0;i<NEWS.length;i++)if(NEWS[i].id===id)a=NEWS[i];
+if(a&&!S.newsRead[id]){S.newsRead[id]=1;
+var catMap={'\u653F\u6CBB':['tax','defense','reform'],'\u5BAE\u5D0E':['agri','reform'],'\u7D4C\u6E08':['tax','agri'],'\u793E\u4F1A':['gender','energy']};
+var axes=catMap[a.cat]||[];for(var i=0;i<axes.length;i++){var sc=S.interest[axes[i]];if(sc){sc.s=Math.min(100,sc.s+1);}}sv();}
+render();}
+function pgND(){var a=null;for(var i=0;i<NEWS.length;i++)if(NEWS[i].id===S.newsOpenId)a=NEWS[i];if(!a)return '';
+var h=bb('closeN()','ニュース');
+h+='<div style="padding:0 16px"><h2 style="font-size:18px;font-weight:800;line-height:1.3;margin-bottom:8px">'+a.hl+'</h2>';
+h+='<div style="font-size:12px;color:var(--dim);margin-bottom:12px">'+a.date+' | '+a.src+'</div>';
+h+='<div style="font-size:14px;line-height:1.7;margin-bottom:16px">'+a.summary+'</div>';
+h+='<div style="background:var(--acL);border-radius:10px;padding:12px;margin-bottom:8px"><div style="font-size:12px;font-weight:800;color:var(--acD);margin-bottom:4px">👍 推進派</div><div style="font-size:13px;line-height:1.5">'+a.pro+'</div></div>';
+h+='<div style="background:var(--redL);border-radius:10px;padding:12px;margin-bottom:8px"><div style="font-size:12px;font-weight:800;color:var(--red);margin-bottom:4px">👎 批判派</div><div style="font-size:13px;line-height:1.5">'+a.con+'</div></div>';
+h+='<div style="background:var(--greenL);border-radius:10px;padding:12px;margin-bottom:8px"><div style="font-size:12px;font-weight:800;color:var(--green);margin-bottom:4px">🌿 宮崎影響</div><div style="font-size:13px;line-height:1.5">'+a.miy+'</div></div>';
+h+=adSlot();
+h+='<div id="aiNB">'+btn('btn-out','aiN('+a.id+')','🤖 AI分析')+'</div></div>';return h;}
+function closeN(){S.newsOpenId=null;render();}
+function aiN(id){var b=document.getElementById('aiNB');if(!b)return;b.innerHTML=sp('分析中...');var a=null;for(var i=0;i<NEWS.length;i++)if(NEWS[i].id===id)a=NEWS[i];if(!a)return;
+callAI('宮崎の大学生向けに政治ニュースを中立解説。300字。','ニュース: '+a.hl+' '+a.summary).then(function(t){b.innerHTML='<div style="background:var(--blueL);border-radius:10px;padding:12px"><div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:4px">🤖 AI分析</div><div style="font-size:13px;line-height:1.6">'+t+'</div></div>';});}
+
+// ===== PAGE: COMPARE =====
+function pgCompare(){
+var h='<div style="padding:16px"><h2 style="font-size:20px;font-weight:800">比較</h2><p style="font-size:12px;color:var(--dim)">候補者・政党のスタンスを6軸で比較</p></div>';
+// Election selector
+h+='<div style="display:flex;gap:6px;padding:0 16px 12px;overflow-x:auto">';
+var compElecs=[{idx:0,label:'候補者比較'},{idx:1,label:'政党比較'}];
+for(var i=0;i<compElecs.length;i++){var sel=S.compareElec===i;h+='<div style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;'+(sel?'background:var(--ink);color:#fff':'background:var(--s2);color:var(--sub)')+'" onclick="setCE('+i+')">'+compElecs[i].label+'</div>';}
+h+='</div>';
+if(S.compareElec===0){
+h+='<div style="padding:0 16px 8px;font-size:12px;color:var(--sub)">2026年衆議院選挙 宮崎県第1区の候補者</div>';
+// Candidates with match %
+if(S.profile&&S.profile.st){h+='<div style="padding:0 16px 8px;display:flex;flex-wrap:wrap;gap:6px">';
+for(var i=0;i<CANDS.length;i++){var m=calcM(CANDS[i]);h+='<div style="display:flex;align-items:center;gap:4px;padding:4px 8px;background:var(--sur);border-radius:8px;border:1px solid var(--bd)"><span style="width:8px;height:8px;border-radius:50%;background:'+CANDS[i].color+'"></span><span style="font-size:11px;font-weight:600">'+CANDS[i].name+'</span><span style="font-size:11px;font-weight:800;color:var(--ac);margin-left:4px">'+m+'%</span></div>';}
+h+='</div>';}
+for(var a=0;a<PA.length;a++){var ax=PA[a];h+='<div class="card" style="padding:14px 16px"><div style="font-size:13px;font-weight:700">'+ax.name+'</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim)"><span>'+ax.L+'</span><span>'+ax.R+'</span></div><div class="numline" style="margin:28px 0 12px">';
+for(var c=0;c<CANDS.length;c++){var p=((CANDS[c][ax.key]-1)/4)*100;h+='<div class="ndot" style="left:'+p+'%;background:'+CANDS[c].color+'"><div class="nlbl" style="color:'+CANDS[c].color+'">'+CANDS[c].name.split(' ')[0]+'</div></div>';}
+if(S.profile&&S.profile.st&&S.profile.st[ax.key]!==undefined){var mp=((S.profile.st[ax.key]-1)/4)*100;h+='<div class="ndot" style="left:'+mp+'%;background:var(--ac);z-index:3"><div class="nlbl" style="color:var(--ac)">あなた</div></div>';}
+h+='</div></div>';}
+}else{
+// Party comparison
+if(S.profile&&S.profile.st){h+='<div class="card"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">政党マッチ (一致度順)</div>';
+var pl=[];for(var i=0;i<PARTIES.length;i++)pl.push({i:i,s:calcM(PARTIES[i])});pl.sort(function(a,b){return b.s-a.s;});
+for(var j=0;j<pl.length;j++){var i=pl[j].i;h+='<div style="display:flex;align-items:center;gap:8px;margin:6px 0"><span style="width:8px;height:8px;border-radius:50%;background:'+PARTIES[i].color+'"></span><span style="font-size:12px;flex:1">'+PARTIES[i].name+'</span><div style="width:80px;height:6px;background:var(--s3);border-radius:3px"><div style="height:100%;width:'+pl[j].s+'%;background:'+PARTIES[i].color+';border-radius:3px"></div></div><span style="font-size:12px;font-weight:700">'+pl[j].s+'%</span></div>';}
+h+='</div>';}else{h+='<div class="card" style="text-align:center;color:var(--dim)">コンパス診断後に一致度が表示されます</div>';}}
+h+=adSlot();return h;}
+function setCE(i){S.compareElec=i;render();}
+
+// ===== PAGE: HISTORY =====
+function pgHistory(){
+if(S.hSub==='compass')return pgHC();
+if(S.hSub==='tenure')return pgHT();
+if(S.hSub==='view')return pgHV();
+if(S.hAdd)return pgHA();
+// PIN lock
+if(S.histLocked){
+var h='<div style="padding:40px 16px;text-align:center"><div style="font-size:48px;margin-bottom:16px">🔒</div><h2 style="margin-bottom:16px">投票履歴</h2><p style="font-size:13px;color:var(--sub);margin-bottom:16px">PINを入力してください</p><input class="inp" id="pinInp" type="password" placeholder="PIN (初期: 1234)" style="text-align:center;max-width:200px;margin:0 auto" onkeydown="if(event.key===\u0027Enter\u0027)checkPin()"><div style="margin-top:16px;max-width:200px;margin-left:auto;margin-right:auto">'+btn('btn-ac','checkPin()','解除')+'</div></div>';
+return h;}
+var h='<div style="padding:16px"><h2 style="font-size:20px;font-weight:800">投票履歴</h2></div>';
+h+='<div style="padding:0 16px 12px">'+btn('btn-ac','startHA()','🗳️ 投票を記録する')+'</div>';
+var sorted=sortH();
+if(!sorted.length){h+='<div class="card" style="text-align:center;color:var(--dim)"><div style="font-size:32px;margin-bottom:8px">🗳️</div><div style="font-size:13px">過去の投票を記録して分析しましょう</div></div>';}
+else{for(var i=0;i<sorted.length;i++){var r=sorted[i];var e=getE(r.eid);
+h+='<div class="card" style="cursor:pointer" onclick="viewH('+i+')">';
+h+='<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:14px;font-weight:700">'+(e?e.name:'')+'</div><div style="font-size:12px;color:var(--dim);margin-top:2px">'+(r.dist||'')+'</div></div><div style="text-align:right">';
+if(r.cand)h+='<span class="tag" style="background:var(--acL);color:var(--acD)">'+r.cand+'</span>';
+if(r.party)h+='<div style="margin-top:4px"><span class="tag" style="background:var(--blueL);color:var(--blue)">比例: '+r.party+'</span></div>';
+h+='</div></div><div style="font-size:11px;color:var(--ac);margin-top:8px">詳細 →</div></div>';}}
+return h;}
+function checkPin(){var inp=document.getElementById('pinInp');if(inp&&inp.value===S.pin){S.histLocked=false;render();}}
+function startHA(){S.hAdd={step:1,eid:null,dist:null,cand:null,party:null};render();}
+
+// History Add steps
+function pgHA(){
+var st=S.hAdd;if(!st)return '';
+var h=bb('cancelHA()','投票履歴');h+='<div style="padding:0 16px">';
+// Step 1: Election
+h+='<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">Step 1: 選挙'+(st.eid?' <span style="color:var(--ac);cursor:pointer" onclick="haReset(1)">変更</span>':'')+'</div>';
+if(!st.eid){var todayNum=parseInt(today().replace(/-/g,''));for(var i=0;i<EC.length;i++){if(EC[i].date>todayNum){h+='<div class="step-btn" style="opacity:.4;cursor:default;color:var(--dim)">'+EC[i].name+' (未実施)</div>';}else{h+='<div class="step-btn" onclick="haElec('+i+')">'+EC[i].name+'</div>';}}return h+'</div></div>';}
+h+='<div class="step-btn sel">'+getE(st.eid).name+'</div></div>';
+// Step 2: District
+var el=getE(st.eid);
+h+='<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">Step 2: 選挙区'+(st.dist?' <span style="color:var(--ac);cursor:pointer" onclick="haReset(2)">変更</span>':'')+'</div>';
+if(!st.dist){for(var i=0;i<el.dists.length;i++)h+='<div class="step-btn" onclick="haDist('+i+')">'+el.dists[i]+'</div>';return h+'</div></div>';}
+h+='<div class="step-btn sel">'+st.dist+'</div></div>';
+// Step 3: Candidate/Party
+h+='<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">Step 3: 投票先'+(st.cand||st.party?' <span style="color:var(--ac);cursor:pointer" onclick="haReset(3)">変更</span>':'')+'</div>';
+if(!st.cand&&!st.party){
+var isPR=st.dist==='\u6BD4\u4F8B\u4EE3\u8868';
+if(isPR){for(var i=0;i<PARTIES.length;i++)h+='<div class="step-btn" onclick="haPty('+i+')">'+PARTIES[i].name+'</div>';
+h+='<div class="step-btn" style="background:var(--s2);color:var(--sub)" onclick="haBlank()">白票（記入なし）</div>';
+h+='<div class="step-btn" style="background:var(--s2);color:var(--sub)" onclick="haSkipVote()">投票しなかった</div>';
+h+='<div style="margin-top:8px"><input class="inp" id="haFree" placeholder="候補者名を入力" onkeydown="if(event.key===\u0027Enter\u0027)haFreeC()"><div style="margin-top:6px">'+btn('btn-out','haFreeC()','この名前で記録')+'</div></div>';}
+else{var cs=(el.cs&&el.cs[st.dist])||[];for(var i=0;i<cs.length;i++)h+='<div class="step-btn" onclick="haCand('+i+')">'+cs[i]+'</div>';
+h+='<div class="step-btn" style="background:var(--s2);color:var(--sub)" onclick="haBlank()">白票（記入なし）</div>';
+h+='<div class="step-btn" style="background:var(--s2);color:var(--sub)" onclick="haSkipVote()">投票しなかった</div>';
+h+='<div style="margin-top:8px"><input class="inp" id="haFree" placeholder="候補者名を入力" onkeydown="if(event.key===\u0027Enter\u0027)haFreeC()"><div style="margin-top:6px">'+btn('btn-out','haFreeC()','この名前で記録')+'</div></div>';}
+return h+'</div></div>';}
+h+='<div class="step-btn sel">'+(st.cand||st.party)+'</div></div>';
+// Step 4: Proportional for 衆院
+if(el.type==='s'&&st.cand&&!st.party){
+h+='<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">Step 4: 比例投票先（任意）</div>';
+for(var i=0;i<PARTIES.length;i++)h+='<div class="step-btn" onclick="haPR('+i+')">'+PARTIES[i].name+'</div>';
+h+=btn('btn-out','haSkipPR()','スキップ');return h+'</div></div>';}
+// Save
+h+='<div style="margin-top:16px">'+btn('btn-ac','saveH()','保存する')+'</div></div>';return h;}
+function haElec(i){S.hAdd.eid=EC[i].id;S.hAdd.dist=null;S.hAdd.cand=null;S.hAdd.party=null;render();}
+function haDist(i){var e=getE(S.hAdd.eid);S.hAdd.dist=e.dists[i];S.hAdd.cand=null;S.hAdd.party=null;render();}
+function haCand(i){var e=getE(S.hAdd.eid);var cs=(e.cs&&e.cs[S.hAdd.dist])||[];S.hAdd.cand=cs[i]||'';render();}
+function haPty(i){S.hAdd.party=PARTIES[i].name;S.hAdd.cand=null;render();}
+function haFreeC(){var inp=document.getElementById('haFree');if(inp&&inp.value.trim()){var isPR=S.hAdd.dist==='\u6BD4\u4F8B\u4EE3\u8868';if(isPR)S.hAdd.party=inp.value.trim();else S.hAdd.cand=inp.value.trim();render();}}
+function haPR(i){S.hAdd.party=PARTIES[i].name;render();}
+function haBlank(){S.hAdd.cand='白票';S.hAdd.party=null;render();}
+function haSkipVote(){S.hAdd.cand='棄権（投票せず）';S.hAdd.party=null;render();}
+function haSkipPR(){S.hAdd.party='--';render();}
+function haReset(s){if(s<=1){S.hAdd.eid=null;}if(s<=2){S.hAdd.dist=null;}S.hAdd.cand=null;S.hAdd.party=null;render();}
+function cancelHA(){S.hAdd=null;render();}
+function saveH(){var st=S.hAdd;if(!st||!st.eid)return;
+S.history.push({id:Date.now(),eid:st.eid,dist:st.dist,cand:st.cand,party:st.party==='--'?null:st.party,eval:null,tenure:null});
+S.hAdd=null;sv();render();}
+
+// History View
+function viewH(si){var sorted=sortH();S.hRec=sorted[si];S.hSub='view';render();}
+function pgHV(){var r=S.hRec;if(!r)return '';var e=getE(r.eid);
+var h=bb('closeHV()','投票履歴');h+='<div style="padding:0 16px">';
+h+='<div class="card"><div style="font-size:16px;font-weight:800">'+(e?e.name:'')+'</div><div style="font-size:13px;color:var(--dim);margin-top:4px">'+(r.dist||'')+'</div>';
+if(r.cand)h+='<div style="margin-top:8px"><span class="tag" style="background:var(--acL);color:var(--acD);font-size:12px">'+r.cand+'</span></div>';
+if(r.party)h+='<div style="margin-top:4px"><span class="tag" style="background:var(--blueL);color:var(--blue);font-size:12px">比例: '+r.party+'</span></div>';
+h+='</div>';
+// AI Eval
+h+='<div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:8px">🤖 AI評価</div>';
+if(r.eval)h+='<div style="font-size:13px;line-height:1.6">'+r.eval+'</div>';
+else h+='<div id="evBox">'+btn('btn-out','loadEv()','AI評価を取得')+'</div>';
+h+='</div>';
+// Always show compass + tenure buttons
+h+='<div style="padding:0 0 8px">'+btn('btn-out','openHC()','🧭 コンパスと照合して分析')+'</div>';
+if(r.cand)h+='<div style="padding:0 0 8px">'+btn('btn-out','openHT()','📋 '+r.cand+'の任期中の歩み')+'</div>';
+h+='</div>';return h;}
+function closeHV(){S.hSub=null;S.hRec=null;render();}
+function loadEv(){var r=S.hRec;if(!r)return;var b=document.getElementById('evBox');if(!b)return;b.innerHTML=sp('評価中...');
+var e=getE(r.eid);callAI('宮崎の政治アナリスト。200〜300字。','投票評価: '+(e?e.name:'')+' '+r.dist+' 候補:'+r.cand+' 比例:'+r.party,600).then(function(t){r.eval=t;sv();b.innerHTML='<div style="font-size:13px;line-height:1.6">'+t+'</div>';});}
+
+// Compass comparison
+function openHC(){S.hSub='compass';render();}
+function pgHC(){var r=S.hRec;if(!r)return '';
+var h=bb('backToHV()','投票詳細');h+='<div style="padding:16px"><h3 style="font-size:18px;font-weight:800;margin-bottom:12px">🧭 コンパス照合</h3>';
+if(!S.profile||!S.profile.st){h+='<div class="card" style="text-align:center"><p style="color:var(--sub)">コンパス診断を先に受けてください</p><div style="margin-top:12px">'+btn('btn-ac','startCompass()','診断する')+'</div></div></div>';return h;}
+var cd=null;for(var i=0;i<CANDS.length;i++)if(CANDS[i].name===r.cand)cd=CANDS[i];
+// Match percentage
+if(cd){var matchPct=calcM(cd);h+='<div class="card" style="text-align:center"><div style="font-size:36px;font-weight:800;color:var(--ac)">'+matchPct+'%</div><div style="font-size:13px;color:var(--sub)">あなたと'+r.cand+'の一致度</div></div>';}
+h+='<div class="card">';for(var i=0;i<PA.length;i++){var ax=PA[i];var mv=S.profile.st[ax.key];if(mv===undefined)continue;var cv=cd?cd[ax.key]:3;
+h+='<div style="margin:12px 0"><div style="font-size:12px;font-weight:700">'+ax.name+'</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim)"><span>'+ax.L+'</span><span>'+ax.R+'</span></div><div class="numline" style="margin:16px 0 4px">';
+h+='<div class="ndot" style="left:'+((mv-1)/4*100)+'%;background:var(--ac)"><div class="nlbl" style="color:var(--ac)">あなた</div></div>';
+if(cd)h+='<div class="ndot" style="left:'+((cv-1)/4*100)+'%;background:'+cd.color+'"><div class="nlbl" style="color:'+cd.color+'">'+cd.name.split(' ')[0]+'</div></div>';
+h+='</div></div>';}h+='</div>';
+h+='<div id="hcAI" class="card">'+sp('分析中...')+'</div>';
+callAI('投票先と自分のスタンスの一致度を200〜300字で分析。','候補者:'+r.cand+' あなたのスタンス:'+JSON.stringify(S.profile.st),500).then(function(t){var b=document.getElementById('hcAI');if(b)b.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:4px">🧭 AI診断</div><div style="font-size:13px;line-height:1.6">'+t+'</div>';});
+h+='</div>';return h;}
+function backToHV(){S.hSub='view';render();}
+
+// Tenure analysis
+function openHT(){S.hSub='tenure';render();}
+function pgHT(){var r=S.hRec;if(!r||!r.cand)return '';
+var h=bb('backToHV()','投票詳細');h+='<div style="padding:16px"><h3 style="font-size:18px;font-weight:800;margin-bottom:12px">📋 '+r.cand+'の任期</h3>';
+h+='<div id="htBox" class="card">'+sp('取得中...')+'</div>';
+var e=getE(r.eid);
+callAI('国会議員の活動を分析する政治アナリスト。事実と推測を区別。',r.cand+'の'+(e?e.name:'')+'当選後の活動を5項目で各60〜80字:\n1.国会での質疑・法案\n2.宮崎への貢献\n3.党内役職\n4.推進政策\n5.有権者評価',800).then(function(t){
+var b=document.getElementById('htBox');if(b)b.innerHTML='<div style="font-size:13px;line-height:1.7;white-space:pre-wrap">'+t+'</div>';});
+h+='</div>';return h;}
+
+// ===== COMPASS =====
+function startCompass(){S.settingsSub='compass';S.obPhase=S.profile?'result':'welcome';S.obIdx=0;S.obAns={};S.tab='settings';hideOv();render();}
+function pgSettings(){
+if(S.settingsSub==='compass')return pgCo();
+if(S.settingsSub==='bm')return pgBM();
+var h='<div style="padding:16px"><h2 style="font-size:20px;font-weight:800">設定</h2></div>';
+if(S.pType){var ti=tInfo(S.pType);h+='<div class="card" style="text-align:center;cursor:pointer" onclick="startCompass()"><div style="font-size:36px">'+ti.i+'</div><div style="font-size:16px;font-weight:800">'+ti.n+' ('+S.pType+')</div><div style="font-size:11px;color:var(--dim)">タップで詳細</div></div>';}
+h+=sh('機能');h+='<div style="background:var(--sur);border-radius:14px;overflow:hidden;margin:0 16px;border:1px solid var(--bd)">';
+h+=srow('🧭 コンパス診断',S.pType?(tInfo(S.pType).n+' ('+S.pType+')'):'受診する →','startCompass()');
+h+=srow('📊 政治関心マップ',totalQ()>0?'Lv.'+getLevel().lv+' '+getLevel().n:'','goInterest()');
+h+=srow('☆ ブックマーク',S.bookmarks.length+'件','openBM2()');
+h+='</div>';
+h+=sh('アカウント');h+='<div style="background:var(--sur);border-radius:14px;overflow:hidden;margin:0 16px;border:1px solid var(--bd)">';
+h+=srow('👤 アカウント',S.user?S.user.displayName:'未登録','showAuth()');
+h+=srow('🔑 PIN変更','','showPinChange()');
+h+=srow('⭐ PRO会員',S.premium?'有効':'無効','showPremium()');
+h+='</div>';
+h+=sh('アプリ情報');h+='<div style="background:var(--sur);border-radius:14px;overflow:hidden;margin:0 16px;border:1px solid var(--bd)">';
+h+=srow('バージョン','v2.1','');
+h+=srow('利用規約','','');
+h+=srow('プライバシーポリシー','','');
+h+=srow('お問い合わせ','','');
+h+=srow('データリセット','','resetD()',true);
+h+='</div>';return h;}
+function srow(l,v,f,d){var c=d?'color:var(--red)':'';return '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--s2)" onclick="'+f+'"><span style="font-size:14px;font-weight:500;'+c+'">'+l+'</span><span style="color:var(--dim);font-size:13px">'+(v||'')+' \u203A</span></div>';}
+
+function pgCo(){
+var h=bb('closeSub()','設定');
+if(S.obPhase==='welcome'){
+h+='<div style="padding:24px 16px;text-align:center"><div style="font-size:48px;margin-bottom:16px">🧭</div><h2>政治コンパス診断</h2><p style="font-size:14px;color:var(--sub);line-height:1.6;margin:12px 0 24px">6軸であなたのスタンスを可視化します</p>';
+h+=btn('btn-ac','startCD()','ディープ (20問)');h+='<div style="height:8px"></div>';h+=btn('btn-out','startCQ()','クイック (6問)');
+if(S.profile)h+='<div style="margin-top:16px">'+btn('btn-out','showCResult()','前回の結果を見る')+'</div>';
+h+='</div>';return h;}
+if(S.obPhase==='quiz'){
+var qs=S.obMode==='deep'?COMPASS_DEEP:COMPASS_QUICK;var q=qs[S.obIdx];if(!q){finishC();return pgCo();}
+h+='<div style="padding:16px"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:12px;color:var(--dim)">'+(S.obIdx+1)+'/'+qs.length+'</span><span class="tag" style="background:'+axCL(q.axis)+';color:'+axC(q.axis)+'">'+axN(q.axis)+'</span></div>';
+h+='<div class="prog" style="margin-bottom:20px"><div class="prog-bar" style="width:'+Math.round(S.obIdx/qs.length*100)+'%"></div></div>';
+h+='<div class="card"><div style="font-size:16px;font-weight:700;line-height:1.5;margin-bottom:16px">'+q.q+'</div>';
+for(var i=0;i<COMPASS_OPTS.length;i++){var sel=S.obAns[q.id]===i;h+='<div class="qopt'+(sel?' correct':'')+'" onclick="cAns('+i+')"><span style="font-size:14px;font-weight:500">'+COMPASS_OPTS[i]+'</span></div>';}
+h+='<div style="display:flex;gap:8px;margin-top:12px">';if(S.obIdx>0)h+='<button class="btn btn-out" style="flex:1" onclick="cPrev()">\u2190</button>';
+h+='<button class="btn btn-out" style="flex:1" onclick="cSkip()">スキップ</button></div></div></div>';return h;}
+if(S.obPhase==='result'){
+h+='<div style="padding:16px">';
+if(S.pType){var ti=tInfo(S.pType);h+='<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--sur),var(--s2))"><div style="font-size:48px;margin:8px 0">'+ti.i+'</div><div style="font-size:20px;font-weight:800">'+ti.n+'</div><div style="display:inline-flex;background:var(--ink);color:#fff;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:800;letter-spacing:2px;margin:6px 0">'+S.pType+'</div><div style="font-size:13px;color:var(--sub);margin:8px 0">'+ti.d+'</div><div style="margin-top:8px"><div style="display:inline-block;padding:8px 16px;border-radius:8px;background:var(--ink);color:#fff;font-size:12px;font-weight:700;cursor:pointer" onclick="shareT()">シェア</div></div></div>';}
+if(S.profile&&S.profile.st){
+h+='<div class="card"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">6軸スタンス</div>';
+for(var i=0;i<PA.length;i++){var k=PA[i].key;var v=S.profile.st[k];if(v===undefined)continue;h+='<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim)"><span>'+PA[i].L+'</span><span style="font-weight:700;color:var(--ink)">'+PA[i].name+'</span><span>'+PA[i].R+'</span></div><div class="numline"><div class="ndot" style="left:'+((v-1)/4*100)+'%;background:var(--ac)"></div></div></div>';}
+h+='</div>';
+// Candidate match
+h+='<div class="card"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">候補者マッチ</div>';
+for(var i=0;i<CANDS.length;i++){var m=calcM(CANDS[i]);h+='<div style="display:flex;align-items:center;gap:8px;margin:6px 0"><span style="width:8px;height:8px;border-radius:50%;background:'+CANDS[i].color+'"></span><span style="font-size:12px;flex:1">'+CANDS[i].name+'</span><div style="width:80px;height:6px;background:var(--s3);border-radius:3px"><div style="height:100%;width:'+m+'%;background:'+CANDS[i].color+';border-radius:3px"></div></div><span style="font-size:12px;font-weight:700">'+m+'%</span></div>';}h+='</div>';
+// Party match
+h+='<div class="card"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">政党マッチ</div>';
+var pl=[];for(var i=0;i<PARTIES.length;i++)pl.push({i:i,s:calcM(PARTIES[i])});pl.sort(function(a,b){return b.s-a.s;});
+for(var j=0;j<pl.length;j++){var i=pl[j].i;h+='<div style="display:flex;align-items:center;gap:8px;margin:6px 0"><span style="width:8px;height:8px;border-radius:50%;background:'+PARTIES[i].color+'"></span><span style="font-size:12px;flex:1">'+PARTIES[i].short+'</span><div style="width:80px;height:6px;background:var(--s3);border-radius:3px"><div style="height:100%;width:'+pl[j].s+'%;background:'+PARTIES[i].color+';border-radius:3px"></div></div><span style="font-size:12px;font-weight:700">'+pl[j].s+'%</span></div>';}h+='</div>';}
+h+=btn('btn-out','closeSub()','設定に戻る');h+='<div style="height:8px"></div>';h+=btn('btn-out','restartC()','再診断');
+h+='</div>';return h;}
+return h;}
+function startCD(){S.obMode='deep';S.obPhase='quiz';S.obIdx=0;S.obAns={};render();}
+function startCQ(){S.obMode='quick';S.obPhase='quiz';S.obIdx=0;S.obAns={};render();}
+function restartC(){S.obPhase='welcome';render();}
+function showCResult(){S.obPhase='result';render();}
+function cAns(i){var qs=S.obMode==='deep'?COMPASS_DEEP:COMPASS_QUICK;var q=qs[S.obIdx];if(!q)return;S.obAns[q.id]=i;setTimeout(function(){S.obIdx++;if(S.obIdx>=qs.length)finishC();render();},250);}
+function cPrev(){if(S.obIdx>0){S.obIdx--;render();}}
+function cSkip(){var qs=S.obMode==='deep'?COMPASS_DEEP:COMPASS_QUICK;S.obIdx++;if(S.obIdx>=qs.length)finishC();render();}
+function closeSub(){S.settingsSub=null;render();}
+function finishC(){
+var qs=S.obMode==='deep'?COMPASS_DEEP:COMPASS_QUICK;
+var axS={},axC2={};for(var i=0;i<qs.length;i++){var q=qs[i];var a=S.obAns[q.id];if(a===undefined)continue;if(!axS[q.axis]){axS[q.axis]=0;axC2[q.axis]=0;}axS[q.axis]+=(a+1);axC2[q.axis]++;}
+var st={};for(var k in axS)st[k]=Math.round(axS[k]/axC2[k]);
+var code=calcType(st);var ti=tInfo(code);
+var ms=[];for(var c=0;c<CANDS.length;c++){var td=0,cn=0;for(var k in st){if(CANDS[c][k]!==undefined){td+=Math.abs(st[k]-CANDS[c][k]);cn++;}}ms.push(cn?Math.round((1-td/(4*cn))*100):50);}
+var ps=[];for(var p=0;p<PARTIES.length;p++){var td=0,cn=0;for(var k in st){if(PARTIES[p][k]!==undefined){td+=Math.abs(st[k]-PARTIES[p][k]);cn++;}}ps.push(cn?Math.round((1-td/(4*cn))*100):50);}
+S.profile={st:st,ms:ms,ps:ps};S.pType=code;S.obPhase='result';sv();}
+
+// Bookmarks
+function openBM2(){S.settingsSub='bm';render();}
+function pgBM(){var h=bb('closeSub()','設定');h+=sh('ブックマーク');
+if(!S.bookmarks.length)h+='<div class="card" style="text-align:center;color:var(--dim)">なし</div>';
+else for(var i=0;i<S.bookmarks.length;i++){var a=null;for(var j=0;j<NEWS.length;j++)if(NEWS[j].id===S.bookmarks[i])a=NEWS[j];if(!a)continue;
+h+='<div class="card" style="cursor:pointer" onclick="openBN('+a.id+')"><div style="font-size:13px;font-weight:700">'+a.hl+'</div></div>';}return h;}
+function openBN(id){S.settingsSub=null;S.tab='news';S.newsOpenId=id;render();}
+
+// Auth
+function showAuth(){showOv('<div style="display:flex;align-items:center;justify-content:center;min-height:100%;background:rgba(15,13,10,.6);backdrop-filter:blur(4px)"><div style="background:var(--sur);border-radius:20px;padding:32px 24px;width:min(360px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.3)"><div style="text-align:center;margin-bottom:24px"><div style="font-size:28px;font-weight:800;color:var(--ink);margin-bottom:4px">POLITIQ</div><div style="font-size:13px;color:var(--dim)">アカウント設定</div></div><div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--sub);display:block;margin-bottom:4px">表示名</label><input class="inp" id="aName" placeholder="例: 田中太郎"></div><div style="margin-bottom:20px"><label style="font-size:12px;font-weight:600;color:var(--sub);display:block;margin-bottom:4px">メールアドレス</label><input class="inp" id="aEmail" type="email" placeholder="example@email.com" onkeydown="if(event.key===\u0027Enter\u0027)doAuth()"></div>'+btn('btn-ac','doAuth()','登録する')+'<div style="height:10px"></div>'+btn('btn-out','hideOv()','キャンセル')+'<div style="text-align:center;margin-top:16px;font-size:10px;color:var(--dim);line-height:1.4">登録することで<span style="text-decoration:underline">利用規約</span>と<span style="text-decoration:underline">プライバシーポリシー</span>に同意したものとします</div></div></div>');}
+function doAuth(){var n=document.getElementById('aName');S.user={displayName:(n?n.value:'')|| '\u30B2\u30B9\u30C8'};sv();hideOv();render();}
+function showPinChange(){showOv('<div style="display:flex;align-items:center;justify-content:center;min-height:100%;background:rgba(0,0,0,.5)"><div style="background:var(--sur);border-radius:16px;padding:24px;width:min(340px,90vw)"><h3 style="text-align:center;margin-bottom:16px">PIN変更</h3><input class="inp" id="newPin" type="password" placeholder="新しいPIN（4文字以上）" style="margin-bottom:16px" onkeydown="if(event.key===\u0027Enter\u0027)doPin()">'+btn('btn-ac','doPin()','変更')+'<div style="height:8px"></div>'+btn('btn-out','hideOv()','キャンセル')+'</div></div>');}
+function doPin(){var p=document.getElementById('newPin');if(p&&p.value.length>=4){S.pin=p.value;sv();hideOv();render();}}
+function showPremium(){showOv('<div style="display:flex;align-items:center;justify-content:center;min-height:100%;background:rgba(15,13,10,.6);backdrop-filter:blur(4px)"><div style="background:var(--sur);border-radius:20px;padding:32px 24px;width:min(360px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.3)"><div style="text-align:center;margin-bottom:20px"><div style="font-size:36px;margin-bottom:8px">⭐</div><div style="font-size:22px;font-weight:800">POLITIQ PRO</div><div style="font-size:13px;color:var(--dim);margin-top:4px">政治をもっと深く理解する</div></div><div style="background:var(--s2);border-radius:12px;padding:16px;margin-bottom:20px"><div style="font-size:14px;font-weight:700;margin-bottom:12px">PRO会員特典</div><div style="font-size:13px;color:var(--sub);line-height:1.8">✅ 広告の完全非表示<br>✅ 追加クイズ問題（毎日+5問）<br>✅ AI詳細分析の回数無制限<br>✅ 過去のクイズ振り返り<br>✅ 候補者の詳細データ閲覧</div></div><div style="text-align:center;margin-bottom:16px"><span style="font-size:28px;font-weight:800;color:var(--ink)">¥300</span><span style="font-size:13px;color:var(--dim)">/月（税込）</span></div>'+btn('btn-ac','doPremium()','PRO会員になる')+'<div style="height:10px"></div>'+btn('btn-out','hideOv()','あとで')+'<div style="text-align:center;margin-top:12px;font-size:10px;color:var(--dim)">いつでもキャンセル可能</div></div></div>');}
+function doPremium(){S.premium=true;sv();hideOv();render();}
+function shareT(){var ti=tInfo(S.pType);var t='政治タイプ: '+ti.i+' '+ti.n+'('+S.pType+')\n#POLITIQ #政治版MBTI';if(navigator.share)navigator.share({text:t}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){alert('コピー完了');});}
+function resetD(){showOv('<div style="display:flex;align-items:center;justify-content:center;min-height:100%;background:rgba(15,13,10,.6)"><div style="background:var(--sur);border-radius:20px;padding:32px 24px;width:min(340px,90vw);text-align:center"><div style="font-size:36px;margin-bottom:12px">\u26A0\uFE0F</div><div style="font-size:18px;font-weight:800;margin-bottom:8px">データリセット</div><div style="font-size:13px;color:var(--sub);margin-bottom:20px;line-height:1.5">全てのデータ（クイズ履歴・コンパス結果・投票記録）が削除されます。この操作は取り消せません。</div><div style="margin-bottom:8px">'+btn('btn-ac" style="background:var(--red)','doReset()','全データを削除する')+'</div>'+btn('btn-out','hideOv()','キャンセル')+'</div></div>');}
+function doReset(){try{localStorage.clear();}catch(e){}location.reload();}
+
+function init(){ld();initQ();render();}
+init();
+</script>
+</body>
+</html>
